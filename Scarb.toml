@@ -10,6 +10,7 @@ casm-add-pythonic-hints = true
 allowed-libfuncs = false
 
 [dependencies]
+# If you don't need the dev version you can just use the git repo directly:
 # hdp_cairo = { git = "https://github.com/HerodotusDev/hdp-cairo" }
 hdp_cairo = { path = "hdp_cairo" }
 starknet = ">=2.12.2"
