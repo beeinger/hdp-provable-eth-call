@@ -1,0 +1,21 @@
+[package]
+name = "hdp_bytecode"
+version = "0.1.0"
+edition = "2024_07"
+
+[[target.starknet-contract]]
+sierra = true
+casm = true
+casm-add-pythonic-hints = true
+allowed-libfuncs = false
+
+[dependencies]
+# hdp_cairo = { git = "https://github.com/HerodotusDev/hdp-cairo" }
+hdp_cairo = { path = "hdp_cairo" }
+starknet = ">=2.12.2"
+
+[dev-dependencies]
+cairo_test = ">=2.12.2"
+
+[tool.fmt]
+sort-module-level-items = true
