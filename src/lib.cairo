@@ -1,30 +1,37 @@
+pub mod evm;
+pub mod utils;
+
+
 #[starknet::contract]
-mod module {
+pub mod executable {
     use core::keccak::cairo_keccak;
     use hdp_cairo::HDP;
+    use crate::utils::bytecode::{ByteCode, OriginalByteCode};
 
     #[storage]
     struct Storage {}
 
     #[external(v0)]
-    pub fn main(
-        ref self: ContractState,
-        hdp: HDP,
-        codeHash: u256,
-        mut byteCode: Array<u64>,
-        lastInputWord: u64,
-        lastInputNumBytes: usize,
-    ) -> u8 {
+    pub fn main(ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCode) -> u8 {
         println!("Received code hash: 0x{:x}", codeHash);
-        let computedCodeHash = cairo_keccak(ref byteCode, lastInputWord, lastInputNumBytes);
+        //? byteCode has to be cloned because cairo_keccak modifies the array
+        let mut byteCodeCopy = byteCode.clone();
+        let computedCodeHash = cairo_keccak(
+            ref byteCodeCopy.words64bit, byteCodeCopy.lastInputWord, byteCodeCopy.lastInputNumBytes,
+        );
         println!("Computed code hash: 0x{:x}", computedCodeHash);
 
         if computedCodeHash == codeHash {
             println!("Code hash matches");
-            return 1;
+        } else {
+            println!("Code hash does not match");
+            return 0;
         }
-        println!("Code hash does not match");
-        return 0;
+
+        let originial_bytecode = byteCode.get_original();
+        // println!("Original bytecode: {:?}", bytecode_bytes);
+
+        return 1;
     }
 }
 

@@ -31,6 +31,14 @@ function toLittleEndianU64(hex16: string): string {
 
 function buildBytecodeInputs(bytecodeArg: string): string[] {
   const hex = normalizeHex(bytecodeArg);
+
+  //? Helpful for writing tests in cairo
+  // console.log("Bytecode bytes: ");
+  // for (let i = 0; i < hex.length; i += 2) {
+  //   console.write("0x", hex.slice(i, i + 2), ", ");
+  // }
+  // console.log();
+
   const fullChunks = computeFullChunkCount(hex);
   const remainingNibbles = hex.length % 16;
 
@@ -89,6 +97,14 @@ async function main() {
   const scriptDir = import.meta.dir;
   const args = await readRawArgs(scriptDir);
   const inputs = buildInputsFromArgs(args);
+
+  //? Helpful for writing tests in cairo
+  // console.log("Inputs: ");
+  // for (const input of inputs) {
+  //   console.write(input.value, ", ");
+  // }
+  // console.log();
+
   await writeInputsFile(inputs);
 }
 
