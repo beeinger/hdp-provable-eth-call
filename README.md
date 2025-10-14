@@ -33,6 +33,21 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 ./run.sh
 ```
 
+### TODOs
+
+#### Next Goals:
+
+- [x] execute simple bytecode (DONE! run ERC20 decimals())
+- [ ] execute more complex bytecode accessing storage slots
+- [ ] execute even more complex bytecode - a proxy running the code of another contract
+
+#### TODOs:
+
+- [ ] fix precompiles in `fn execute_code(ref vm: VM) -> ExecutionResult {`
+- [ ] trustless Environment setup instead of hardcoding
+- [ ] add HDP for getting accounts, storage slots etc
+- [ ] resolve TODOs in code
+
 ---
 
 This project makes use of code adapted from [**Kakarot**](https://github.com/kkrt-labs/kakarot-ssj) (@kkrt-labs/kakarot-ssj) under the [MIT License](https://github.com/kkrt-labs/kakarot-ssj/blob/main/LICENSE).
