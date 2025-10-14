@@ -1,15 +1,22 @@
+use core::dict::{Felt252Dict, Felt252DictTrait};
 use crate::utils::traits::bytes::ToBytes;
 
+
 #[derive(Clone, Debug, Serde, Destruct)]
-pub struct ByteCode {
+pub struct ByteCodeLeWords {
     pub words64bit: Array<u64>,
     pub lastInputWord: u64,
     pub lastInputNumBytes: usize,
 }
 
+#[derive(Clone, Debug, Serde, Destruct)]
+pub struct ByteCode {
+    pub bytes: Span<u8>,
+}
+
 #[generate_trait]
 pub impl OriginalByteCode of OriginalByteCodeTrait {
-    fn get_original(self: ByteCode) -> Span<u8> {
+    fn get_original(self: ByteCodeLeWords) -> ByteCode {
         let mut bytes: Array<u8> = Default::default();
 
         for word in self.words64bit {
@@ -25,17 +32,55 @@ pub impl OriginalByteCode of OriginalByteCodeTrait {
             bytes.append(*byte);
         }
 
-        bytes.span()
+        ByteCode { bytes: bytes.span() }
+    }
+}
+
+#[generate_trait]
+pub impl ByteCodeImpl of ByteCodeTrait {
+    /// Initializes a dictionary of valid jump destinations in EVM bytecode.
+    ///
+    /// This function iterates over the bytecode from the current index 'i'.
+    /// If the opcode at the current index is between 0x5f and 0x7f (PUSHN opcodes) (inclusive),
+    /// it skips the next 'n_args' opcodes, where 'n_args' is the opcode minus 0x5f.
+    /// If the opcode is 0x5b (JUMPDEST), it marks the current index as a valid jump destination.
+    /// It continues by jumping back to the body flag until it has processed the entire bytecode.
+    ///
+    /// # Arguments
+    /// * `bytecode` The bytecode to analyze
+    ///
+    /// # Returns
+    /// A dictionary of valid jump destinations in the bytecode
+    fn get_jumpdests(ref self: ByteCode) -> Felt252Dict<bool> {
+        let bytecode = self.bytes;
+        let mut jumpdests: Felt252Dict<bool> = Default::default();
+        let mut i: usize = 0;
+        while i < bytecode.len() {
+            let opcode = *bytecode[i];
+            // checking for PUSH opcode family
+            if opcode >= 0x5f && opcode <= 0x7f {
+                let n_args = opcode.into() - 0x5f;
+                i += n_args + 1;
+                continue;
+            }
+
+            if opcode == 0x5b {
+                jumpdests.insert(i.into(), true);
+            }
+
+            i += 1;
+        }
+        jumpdests
     }
 }
 
 #[cfg(test)]
 mod tests {
     mod bytecode_test {
-        use super::super::{ByteCode, OriginalByteCode};
+        use super::super::{ByteCodeLeWords, OriginalByteCode};
         #[test]
         fn test_pack_bytes_ge_bytes31() {
-            let bytecode = ByteCode {
+            let bytecode = ByteCodeLeWords {
                 words64bit: array![
                     0x3604605240608060, 0x350060575e006110, 0xda605c63801ce060, 0x638057430061111b,
                     0xa80061141bda605c, 0x147039288f638057, 0x51f8638057e60061, 0x61570601611440a4,
@@ -313,7 +358,7 @@ mod tests {
             ]
                 .span();
 
-            let calculated_bytecode_bytes = bytecode.get_original();
+            let calculated_bytecode_bytes = bytecode.get_original().bytes;
 
             assert_eq!(calculated_bytecode_bytes, bytecode_bytes, "bytecode mismatch");
         }

@@ -49,9 +49,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "corelib_imports"
+version = "0.1.2"
+source = "git+https://github.com/keep-starknet-strange/garaga.git#8d65f565b66e125959cacc50b7757d757fd056bd"
+
+[[package]]
+name = "garaga"
+version = "0.18.2"
+source = "git+https://github.com/keep-starknet-strange/garaga.git#8d65f565b66e125959cacc50b7757d757fd056bd"
+dependencies = [
+ "corelib_imports",
+]
+
+[[package]]
 name = "hdp_bytecode"
 version = "0.1.0"
 dependencies = [
+ "garaga",
  "hdp_cairo",
 ]
 

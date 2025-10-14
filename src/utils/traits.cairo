@@ -1,5 +1,6 @@
 pub mod array;
 pub mod bytes;
+pub mod eth_address;
 pub mod integer;
 use core::array::SpanTrait;
 use core::num::traits::{One, Zero};

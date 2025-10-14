@@ -6,13 +6,15 @@ pub mod utils;
 pub mod executable {
     use core::keccak::cairo_keccak;
     use hdp_cairo::HDP;
-    use crate::utils::bytecode::{ByteCode, OriginalByteCode};
+    use crate::utils::bytecode::{ByteCodeLeWords, OriginalByteCode};
 
     #[storage]
     struct Storage {}
 
     #[external(v0)]
-    pub fn main(ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCode) -> u8 {
+    pub fn main(
+        ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCodeLeWords,
+    ) -> u8 {
         println!("Received code hash: 0x{:x}", codeHash);
         //? byteCode has to be cloned because cairo_keccak modifies the array
         let mut byteCodeCopy = byteCode.clone();
