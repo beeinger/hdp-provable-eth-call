@@ -231,7 +231,7 @@ pub struct Address {
     pub starknet: ContractAddress,
 }
 
-impl ZeroAddress of core::num::traits::Zero<Address> {
+pub impl ZeroAddress of core::num::traits::Zero<Address> {
     fn zero() -> Address {
         Address { evm: Zero::zero(), starknet: Zero::zero() }
     }

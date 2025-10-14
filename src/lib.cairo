@@ -6,6 +6,11 @@ pub mod utils;
 pub mod executable {
     use core::keccak::cairo_keccak;
     use hdp_cairo::HDP;
+    use starknet::EthAddress;
+    use crate::evm::interpreter::EVMImpl;
+    use crate::evm::model::{Address, Environment, Message, ZeroAddress};
+    use crate::evm::state::State;
+    use crate::evm::test_utils::test_address;
     use crate::utils::bytecode::{ByteCodeLeWords, OriginalByteCode};
 
     #[storage]
@@ -33,6 +38,60 @@ pub mod executable {
         let originial_bytecode = byteCode.get_original();
         // println!("Original bytecode: {:?}", bytecode_bytes);
 
+        // decimals()
+        let calldata: Span<u8> = [0x31, 0x3c, 0xe5, 0x67].span();
+
+        let message = Message {
+            caller: ZeroAddress::zero(),
+            target: ZeroAddress::zero(),
+            gas_limit: 1000000000000,
+            data: calldata,
+            code: originial_bytecode.bytes,
+            code_address: Address {
+                evm: 0xC4ed0A9Ea70d5bCC69f748547650d32cC219D882.try_into().unwrap(),
+                starknet: test_address(),
+            },
+            value: 0,
+            should_transfer_value: false,
+            depth: 0,
+            read_only: false,
+            accessed_addresses: Default::default(),
+            accessed_storage_keys: Default::default(),
+        };
+
+        let env = Environment {
+            origin: ZeroAddress::zero(),
+            gas_price: 0,
+            chain_id: 42161,
+            prevrandao: 0,
+            block_number: 2137,
+            block_gas_limit: 1000000000000,
+            block_timestamp: 0,
+            coinbase: 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1.try_into().unwrap(),
+            base_fee: 0,
+            state: State {
+                accounts: Default::default(),
+                accounts_storage: Default::default(),
+                events: Default::default(),
+                transfers: Default::default(),
+                transient_account_storage: Default::default(),
+            },
+        };
+
+        let result = EVMImpl::process_message_call(message, env, false);
+        println!("Result: {:?}", result.return_data);
+
+        if result
+            .return_data != [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 18,
+            ]
+            .span() {
+            println!("Result does not match, should be 18");
+            return 0;
+        }
+
+        println!("Result matches");
         return 1;
     }
 }

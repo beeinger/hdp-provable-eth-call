@@ -186,8 +186,8 @@ pub impl EVMImpl of EVMTrait {
     fn process_message_call(
         message: Message, mut env: Environment, is_deploy_tx: bool,
     ) -> ExecutionSummary {
-        let mut target_account = env.state.get_account(message.target.evm);
         let result = if is_deploy_tx {
+            let mut target_account = env.state.get_account(message.target.evm);
             // Check collision
             if target_account.has_code_or_nonce() {
                 return ExecutionSummary {
@@ -308,35 +308,39 @@ pub impl EVMImpl of EVMTrait {
     }
 
     fn execute_code(ref vm: VM) -> ExecutionResult {
+        // TODO: @beeinger
+        //! For some reason uncommenting this code breaks the whole function, even println at the
+        //! beginning of the function doesnt work.
         // Handle precompile logic
-        if vm.message.code_address.evm.is_precompile() {
-            let result = Precompiles::exec_precompile(ref vm);
+        // if vm.message.code_address.evm.is_precompile() {
+        //     println!("precompile");
+        //     let result = Precompiles::exec_precompile(ref vm);
 
-            match result {
-                Result::Ok(_) => {
-                    let status = if vm.is_error() {
-                        ExecutionResultStatus::Revert
-                    } else {
-                        ExecutionResultStatus::Success
-                    };
-                    return ExecutionResult {
-                        status,
-                        return_data: vm.return_data(),
-                        gas_left: vm.gas_left(),
-                        accessed_addresses: vm.accessed_addresses(),
-                        accessed_storage_keys: vm.accessed_storage_keys(),
-                        gas_refund: vm.gas_refund(),
-                    };
-                },
-                Result::Err(error) => {
-                    // If an error occurred, revert execution self.
-                    // Currently, revert reason is a Span<u8>.
-                    return ExecutionResultTrait::exceptional_failure(
-                        error.to_bytes(), vm.accessed_addresses(), vm.accessed_storage_keys(),
-                    );
-                },
-            }
-        }
+        //     match result {
+        //         Result::Ok(_) => {
+        //             let status = if vm.is_error() {
+        //                 ExecutionResultStatus::Revert
+        //             } else {
+        //                 ExecutionResultStatus::Success
+        //             };
+        //             return ExecutionResult {
+        //                 status,
+        //                 return_data: vm.return_data(),
+        //                 gas_left: vm.gas_left(),
+        //                 accessed_addresses: vm.accessed_addresses(),
+        //                 accessed_storage_keys: vm.accessed_storage_keys(),
+        //                 gas_refund: vm.gas_refund(),
+        //             };
+        //         },
+        //         Result::Err(error) => {
+        //             // If an error occurred, revert execution self.
+        //             // Currently, revert reason is a Span<u8>.
+        //             return ExecutionResultTrait::exceptional_failure(
+        //                 error.to_bytes(), vm.accessed_addresses(), vm.accessed_storage_keys(),
+        //             );
+        //         },
+        //     }
+        // }
 
         // Retrieve the current program counter.
         let pc = vm.pc();
