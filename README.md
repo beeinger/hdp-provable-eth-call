@@ -43,10 +43,17 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 
 #### TODOs:
 
-- [ ] fix precompiles in `fn execute_code(ref vm: VM) -> ExecutionResult {`
-- [ ] trustless Environment setup instead of hardcoding
-- [ ] add HDP for getting accounts, storage slots etc
-- [ ] resolve TODOs in code
+> ℹ️ Search the code for `TODO: @herodotus [<subject>]`
+
+- [ ] implement everything in [hdp-backend.cairo](./src/evm/hdp_backend.cairo)
+
+  - [ ] storage - todos with `[storage]`
+  - [ ] account - todos with `[account]`
+
+- [ ] fix precompiles in [interpreter.cairo](./src/evm/interpreter.cairo) search for: `[precompiles]`
+- [ ] resolve `[misc]` TODOs along the way
+- [ ] Cleanup & brainstorm how to tackle Environment and Message structs setup in [lib.cairo](./src/lib.cairo)
+  - [ ] Especially Environment stuff like gas price, chain id, randao, block number, gas limit, timestamp, coinbase, base fee - they all have to come from somewhere
 
 ---
 

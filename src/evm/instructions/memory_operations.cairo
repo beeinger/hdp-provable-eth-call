@@ -2,6 +2,7 @@ use core::cmp::max;
 //! Stack Memory Storage and Flow Operations.
 use crate::evm::errors::{EVMError, ensure};
 use crate::evm::gas;
+use crate::evm::hdp_backend::fetch_original_storage;
 use crate::evm::memory::MemoryTrait;
 use crate::evm::model::vm::{VM, VMTrait};
 use crate::evm::stack::StackTrait;
@@ -108,10 +109,7 @@ pub impl MemoryOperation of MemoryOperationTrait {
         let evm_address = self.message().target;
         let account = self.env.state.get_account(evm_address);
 
-        // TODO: @beeinger potentially HDP here
-        // let original_value = fetch_original_storage(@account, key);
-        //! IMPORTANT: Remove this once HDP is implemented!!!
-        let original_value = 0;
+        let original_value = fetch_original_storage(@account, key);
 
         let current_value = self.env.state.read_state(evm_address, key);
 
@@ -313,7 +311,7 @@ mod tests {
     use crate::evm::gas;
     use crate::evm::instructions::MemoryOperationTrait;
     use crate::evm::memory::MemoryTrait;
-    use crate::evm::model::AccountTrait;
+    use crate::evm::model::account::AccountTrait;
     use crate::evm::model::vm::VMTrait;
     use crate::evm::stack::StackTrait;
     use crate::evm::state::StateTrait;

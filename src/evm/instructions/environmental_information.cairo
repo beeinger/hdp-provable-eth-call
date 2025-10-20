@@ -302,7 +302,7 @@ mod tests {
     use crate::evm::errors::{EVMError, TYPE_CONVERSION_ERROR};
     use crate::evm::instructions::EnvironmentInformationTrait;
     use crate::evm::memory::{InternalMemoryTrait, MemoryTrait};
-    use crate::evm::model::Account;
+    use crate::evm::model::account::Account;
     use crate::evm::model::vm::VMTrait;
     use crate::evm::stack::StackTrait;
     use crate::evm::state::StateTrait;

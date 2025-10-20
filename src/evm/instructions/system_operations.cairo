@@ -373,8 +373,7 @@ mod tests {
     use crate::evm::call_helpers::CallHelpersImpl;
     use crate::evm::instructions::{MemoryOperationTrait, SystemOperationsTrait};
     use crate::evm::interpreter::EVMTrait;
-    use crate::evm::model::AccountTrait;
-    use crate::evm::model::account::Account;
+    use crate::evm::model::account::{Account, AccountTrait};
     use crate::evm::model::vm::VMTrait;
     use crate::evm::stack::StackTrait;
     use crate::evm::state::StateTrait;

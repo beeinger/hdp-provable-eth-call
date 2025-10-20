@@ -1,6 +1,7 @@
 use core::dict::{Felt252Dict, Felt252DictTrait};
 use core::num::traits::Zero;
 use core::starknet::{ContractAddress, EthAddress};
+use crate::evm::hdp_backend::{fetch_balance, fetch_bytecode, fetch_code_hash, fetch_nonce};
 use crate::evm::test_utils::test_address;
 use crate::utils::constants::EMPTY_KECCAK;
 use crate::utils::traits::bytes::U8SpanExTrait;
@@ -28,18 +29,13 @@ impl AccountBuilderImpl of AccountBuilderTrait {
 
     #[inline(always)]
     fn fetch_balance(mut self: AccountBuilder) -> AccountBuilder {
-        // self.account.balance = fetch_balance(@self.account.address);
-        // TODO: @beeinger potentially HDP here
-        panic!("fetch_balance not implemented");
+        self.account.balance = fetch_balance(@self.account.address);
         self
     }
 
     #[inline(always)]
     fn fetch_nonce(mut self: AccountBuilder) -> AccountBuilder {
-        // let account = IAccountDispatcher { contract_address: self.account.address.starknet };
-        // self.account.nonce = account.get_nonce();
-        // TODO: @beeinger potentially HDP here
-        panic!("fetch_nonce not implemented");
+        self.account.nonce = fetch_nonce(@self.account.address);
         self
     }
 
@@ -51,20 +47,13 @@ impl AccountBuilderImpl of AccountBuilderTrait {
     /// * The bytecode of the Contract Account as a ByteArray
     #[inline(always)]
     fn fetch_bytecode(mut self: AccountBuilder) -> AccountBuilder {
-        // let account = IAccountDispatcher { contract_address: self.account.address.starknet };
-        // let bytecode = account.bytecode();
-        // self.account.code = bytecode;
-        // TODO: @beeinger potentially HDP here
-        panic!("fetch_bytecode not implemented");
+        self.account.code = fetch_bytecode(@self.account.address);
         self
     }
 
     #[inline(always)]
     fn fetch_code_hash(mut self: AccountBuilder) -> AccountBuilder {
-        // let account = IAccountDispatcher { contract_address: self.account.address.starknet };
-        // self.account.code_hash = account.get_code_hash();
-        // TODO: @beeinger potentially HDP here
-        panic!("fetch_code_hash not implemented");
+        self.account.code_hash = fetch_code_hash(@self.account.address);
         self
     }
 
@@ -88,36 +77,6 @@ pub struct Account {
 #[generate_trait]
 pub impl AccountImpl of AccountTrait {
     /// Fetches an account from Starknet
-    /// An non-deployed account is just an empty account.
-    /// # Arguments
-    /// * `address` - The address of the account to fetch`
-    ///
-    /// # Returns
-    /// The fetched account if it existed, otherwise a new empty account.
-    fn fetch_or_create(evm_address: EthAddress) -> Account {
-        let maybe_acc = Self::fetch(evm_address);
-
-        // match maybe_acc {
-        //     Option::Some(account) => account,
-        //     Option::None => {
-        //         let kakarot_state = KakarotCore::unsafe_new_contract_state();
-        //         let starknet_address = kakarot_state.compute_starknet_address(evm_address);
-        //         // If no account exists at `address`, then we are trying to
-        //         // access an undeployed account. We create an
-        //         // empty account with the correct address, fetch the balance, and return it.
-        //         AccountBuilderTrait::new(Address { starknet: starknet_address, evm: evm_address
-        //         })
-        //             .fetch_balance()
-        //             .build()
-        //     },
-        // }
-
-        maybe_acc.unwrap_or({
-            panic!("fetch_or_create creating accounts is not supported");
-        })
-    }
-
-    /// Fetches an account from Starknet
     ///
     /// # Arguments
     /// * `address` - The address of the account to fetch`
@@ -125,16 +84,6 @@ pub impl AccountImpl of AccountTrait {
     /// # Returns
     /// The fetched account if it existed, otherwise `None`.
     fn fetch(evm_address: EthAddress) -> Option<Account> {
-        // let mut kakarot_state = KakarotCore::unsafe_new_contract_state();
-        // let starknet_address = kakarot_state.address_registry(evm_address);
-        // if starknet_address.is_zero() {
-        //     return Option::None;
-        // }
-
-        // TODO: HDP here
-
-        panic!("fetch account from starknet not implemented");
-
         Option::Some(
             AccountBuilderTrait::new(evm_address)
                 .fetch_nonce()

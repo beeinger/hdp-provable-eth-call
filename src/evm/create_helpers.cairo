@@ -178,6 +178,4 @@ pub impl CreateHelpersImpl of CreateHelpers {
 #[cfg(test)]
 mod tests {
     //TODO: test create helpers
-
-
 }

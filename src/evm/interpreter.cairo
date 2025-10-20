@@ -13,10 +13,10 @@ use crate::evm::instructions::{
 use crate::evm::model::account::{Account, AccountTrait};
 use crate::evm::model::vm::{VM, VMTrait};
 use crate::evm::model::{
-    AddressTrait, Environment, ExecutionResult, ExecutionResultStatus, ExecutionResultTrait,
-    ExecutionSummary, Message, TransactionResult, TransactionResultTrait, Transfer,
+    Environment, ExecutionResult, ExecutionResultStatus, ExecutionResultTrait, ExecutionSummary,
+    Message, TransactionResult, TransactionResultTrait, Transfer,
 };
-use crate::evm::precompiles::{Precompiles, eth_precompile_addresses};
+use crate::evm::precompiles::eth_precompile_addresses;
 use crate::evm::state::StateTrait;
 use crate::utils::address::compute_contract_address;
 use crate::utils::constants;
@@ -26,7 +26,7 @@ use crate::utils::eth_transaction::eip2930::{AccessListItem, AccessListItemTrait
 use crate::utils::eth_transaction::transaction::{Transaction, TransactionTrait};
 use crate::utils::set::{Set, SetTrait};
 use crate::utils::traits::eth_address::EthAddressExTrait;
-use super::test_utils::test_address;
+use super::hdp_backend::get_base_fee;
 
 #[generate_trait]
 pub impl EVMImpl of EVMTrait {
@@ -40,16 +40,10 @@ pub impl EVMImpl of EVMTrait {
                 let to_evm_address = compute_contract_address(
                     sender_account.address(), origin_nonce,
                 );
-                // TODO: @beeinger
-                // let to_starknet_address = self.compute_starknet_address(to_evm_address);
-                let to_starknet_address = test_address();
                 let to = to_evm_address;
                 (to, true, tx.input(), Zero::zero(), [].span())
             },
             TxKind::Call(to) => {
-                // TODO: @beeinger
-                // let target_starknet_address = self.compute_starknet_address(to);
-                let target_starknet_address = test_address();
                 let to = to;
                 let code = env.state.get_account(to).code;
                 (to, false, code, to, tx.input())
@@ -96,9 +90,7 @@ pub impl EVMImpl of EVMTrait {
         origin: EthAddress, tx: Transaction, intrinsic_gas: u64,
     ) -> TransactionResult {
         // Charge the cost of intrinsic gas - which has been verified to be <= gas_limit.
-        // TODO: @beeinger
-        // let block_base_fee = self.snapshot_deref().Kakarot_base_fee.read();
-        let block_base_fee = 0_u128;
+        let block_base_fee = get_base_fee();
         let gas_price = tx.effective_gas_price(Option::Some(block_base_fee.into()));
         let gas_left = tx.gas_limit() - intrinsic_gas;
         let max_fee = tx.gas_limit().into() * gas_price;
@@ -307,7 +299,7 @@ pub impl EVMImpl of EVMTrait {
     }
 
     fn execute_code(ref vm: VM) -> ExecutionResult {
-        // TODO: @beeinger
+        // TODO: @herodotus [precompiles] Fix the precompiles here
         //! For some reason uncommenting this code breaks the whole function, even println at the
         //! beginning of the function doesnt work.
         // Handle precompile logic
@@ -1023,7 +1015,8 @@ pub impl EVMImpl of EVMTrait {
 #[cfg(test)]
 mod tests {
     use core::num::traits::Zero;
-    use crate::evm::model::{Account, Environment, Message};
+    use crate::evm::model::account::Account;
+    use crate::evm::model::{Environment, Message};
     use crate::evm::state::StateTrait;
     use crate::evm::test_utils::{dual_origin, test_dual_address};
     use crate::utils::constants::EMPTY_KECCAK;

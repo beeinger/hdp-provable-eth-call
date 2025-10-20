@@ -5,8 +5,9 @@ use core::starknet::{ClassHash, ContractAddress, EthAddress, contract_address_co
 use core::traits::TryInto;
 use starknet::storage::StorageTraitMut;
 use crate::evm::memory::{Memory, MemoryTrait};
+use crate::evm::model::account::AccountTrait;
 use crate::evm::model::vm::{VM, VMTrait};
-use crate::evm::model::{AccountTrait, Environment, Message};
+use crate::evm::model::{Environment, Message};
 use crate::utils::constants;
 
 pub fn uninitialized_account() -> ClassHash {
@@ -18,7 +19,7 @@ pub fn account_contract() -> ClassHash {
 }
 
 pub fn test_address() -> ContractAddress {
-    // TODO: @beeinger probably delete later, put Herodotus Satellite on Starknet address here
+    // TODO: @herodotus [misc] probably delete later, put Herodotus Satellite on Starknet address
     0x01ba7d4b5707f8878c22fb335763abfc26c2ae157c434d597f6416fe6a79bf2e.try_into().unwrap()
 }
 

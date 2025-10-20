@@ -6,9 +6,10 @@ use core::poseidon::PoseidonTrait;
 use core::starknet::EthAddress;
 use core::starknet::storage_access::{StorageBaseAddress, storage_base_address_from_felt252};
 use crate::evm::errors::{BALANCE_OVERFLOW, EVMError, ensure};
-use crate::evm::model::account::AccountTrait;
-use crate::evm::model::{Account, Event, Transfer};
+use crate::evm::model::account::{Account, AccountTrait};
+use crate::evm::model::{Event, Transfer};
 use crate::utils::set::{Set, SetTrait};
+use super::hdp_backend::fetch_original_storage;
 
 /// The `StateChangeLog` tracks the changes applied to storage during the execution of a
 /// transaction.
@@ -140,8 +141,10 @@ pub impl StateImpl of StateTrait {
         match maybe_account {
             Option::Some(acc) => { return acc; },
             Option::None => {
-                // TODO: HDP inside fetch_or_create
-                let account = AccountTrait::fetch_or_create(evm_address);
+                let account = AccountTrait::fetch(evm_address)
+                    .unwrap_or_else(
+                        || panic!("Accessed account does not exist: {:?}", evm_address),
+                    );
                 self.accounts.write(evm_address.into(), account);
                 return account;
             },
@@ -182,9 +185,7 @@ pub impl StateImpl of StateTrait {
             Option::Some((_, _, value)) => { return value; },
             Option::None => {
                 let account = self.get_account(evm_address);
-                // TODO: @beeinger potentially HDP here
-                // return fetch_original_storage(@account, key);
-                panic!("fetch_original_storage not implemented");
+                return fetch_original_storage(@account, key);
             },
         }
     }

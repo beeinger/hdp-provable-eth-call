@@ -1,6 +1,6 @@
 pub mod account;
 pub mod vm;
-pub use account::{Account, AccountTrait};
+use account::{Account, AccountTrait};
 use core::num::traits::{CheckedSub, Zero};
 use core::starknet::{ContractAddress, EthAddress};
 pub use vm::{VM, VMTrait};
@@ -13,6 +13,7 @@ use crate::evm::state::State;
 use crate::utils::fmt::TSpanSetDebug;
 use crate::utils::set::SpanSet;
 use crate::utils::traits::{ContractAddressDefault, EthAddressDefault, SpanDefault};
+pub use super::hdp_backend::is_deployed;
 
 /// Represents the execution environment for EVM transactions.
 #[derive(Destruct, Default)]
@@ -230,12 +231,7 @@ pub impl AddressImpl of AddressTrait {
     ///
     /// `true` if the address is deployed, `false` otherwise.
     fn is_deployed(self: @EthAddress) -> bool {
-        // let mut kakarot_state = KakarotCore::unsafe_new_contract_state();
-        // let address = kakarot_state.address_registry(*self);
-        // return address.is_non_zero();
-
-        // TODO: @beeinger potentially HDP here
-        panic!("is_deployed not implemented");
+        is_deployed(self)
     }
 
     /// Checks if the address is a precompile for a call-family opcode.
