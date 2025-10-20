@@ -19,6 +19,7 @@ use crate::evm::model::{
 };
 use crate::evm::precompiles::eth_precompile_addresses;
 use crate::evm::state::StateTrait;
+use crate::hdp_backend::fetch_base_fee;
 use crate::utils::address::compute_contract_address;
 use crate::utils::constants;
 use crate::utils::env::get_env;
@@ -27,7 +28,6 @@ use crate::utils::eth_transaction::eip2930::{AccessListItem, AccessListItemTrait
 use crate::utils::eth_transaction::transaction::{Transaction, TransactionTrait};
 use crate::utils::set::{Set, SetTrait};
 use crate::utils::traits::eth_address::EthAddressExTrait;
-use super::hdp_backend::fetch_base_fee;
 use super::model::AddressTrait;
 use super::precompiles::Precompiles;
 

@@ -2,8 +2,8 @@ use core::dict::{Felt252Dict, Felt252DictTrait};
 use core::num::traits::Zero;
 use hdp_cairo::HDP;
 use starknet::{ContractAddress, EthAddress};
-use crate::evm::hdp_backend::{fetch_balance, fetch_bytecode, fetch_code_hash, fetch_nonce};
 use crate::evm::test_utils::test_address;
+use crate::hdp_backend::{fetch_balance, fetch_bytecode, fetch_code_hash, fetch_nonce};
 use crate::utils::constants::EMPTY_KECCAK;
 use crate::utils::traits::bytes::U8SpanExTrait;
 

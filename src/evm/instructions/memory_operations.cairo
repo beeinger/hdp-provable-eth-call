@@ -2,11 +2,11 @@ use core::cmp::max;
 //! Stack Memory Storage and Flow Operations.
 use crate::evm::errors::{EVMError, ensure};
 use crate::evm::gas;
-use crate::evm::hdp_backend::fetch_original_storage;
 use crate::evm::memory::MemoryTrait;
 use crate::evm::model::vm::{VM, VMTrait};
 use crate::evm::stack::StackTrait;
 use crate::evm::state::StateTrait;
+use crate::hdp_backend::fetch_original_storage;
 use crate::utils::helpers::ceil32;
 use crate::utils::set::SetTrait;
 

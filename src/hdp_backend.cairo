@@ -69,7 +69,7 @@ pub fn fetch_nonce(hdp: Option<@HDP>, address: @EthAddress) -> u64 {
 }
 
 pub fn fetch_bytecode(hdp: Option<@HDP>, address: @EthAddress) -> Span<u8> {
-    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_bytecode"));
+    let _hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_bytecode"));
 
     // TODO: @herodotus [account] HDP get account bytecode.
     [].span()

@@ -2,7 +2,6 @@ pub mod call_helpers;
 pub mod create_helpers;
 pub mod errors;
 pub mod gas;
-pub mod hdp_backend;
 pub mod instructions;
 pub mod interpreter;
 pub mod memory;

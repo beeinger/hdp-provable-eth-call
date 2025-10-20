@@ -9,8 +9,8 @@ use starknet::storage_access::{StorageBaseAddress, storage_base_address_from_fel
 use crate::evm::errors::{BALANCE_OVERFLOW, EVMError, ensure};
 use crate::evm::model::account::{Account, AccountTrait};
 use crate::evm::model::{Event, Transfer};
+use crate::hdp_backend::fetch_original_storage;
 use crate::utils::set::{Set, SetTrait};
-use super::hdp_backend::fetch_original_storage;
 
 /// The `StateChangeLog` tracks the changes applied to storage during the execution of a
 /// transaction.

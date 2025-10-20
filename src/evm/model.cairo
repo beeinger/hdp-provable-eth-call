@@ -11,10 +11,10 @@ use crate::evm::precompiles::{
     LAST_ETHEREUM_PRECOMPILE_ADDRESS,
 };
 use crate::evm::state::State;
+pub use crate::hdp_backend::is_deployed;
 use crate::utils::fmt::TSpanSetDebug;
 use crate::utils::set::SpanSet;
 use crate::utils::traits::{ContractAddressDefault, EthAddressDefault, SpanDefault};
-pub use super::hdp_backend::is_deployed;
 
 /// Represents the execution environment for EVM transactions.
 #[derive(Destruct, Default)]
