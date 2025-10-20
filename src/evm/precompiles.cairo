@@ -101,8 +101,11 @@ pub impl PrecompilesImpl of Precompiles {
                 },
                 0x04 => { Identity::exec(input)? },
                 0x05 => { ModExp::exec(input)? },
-                0x06 => { EcAdd::exec(input)? },
-                0x07 => { EcMul::exec(input)? },
+                // TODO: @herodotus those two are not working rn
+                //0x06 => { EcAdd::exec(input)? },
+                //0x07 => { EcMul::exec(input)? },
+                0x06 => { panic!("pre-compile at address {:?} is not working yet", precompile_address) },
+                0x07 => { panic!("pre-compile at address {:?} is not working yet", precompile_address)},
                 0x08 => {
                     // we should never reach this branch!
                     panic!("pre-compile at address {:?} isn't implemented yet", precompile_address)

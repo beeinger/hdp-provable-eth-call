@@ -311,34 +311,34 @@ pub impl EVMImpl of EVMTrait {
         //! beginning of the function doesnt work.
         // Handle precompile logic
 
-        // if vm.message.code_address.is_precompile() {
-        //     let result = Precompiles::exec_precompile(ref vm);
+         if vm.message.code_address.is_precompile() {
+             let result = Precompiles::exec_precompile(ref vm);
 
-        //     match result {
-        //         Result::Ok(_) => {
-        //             let status = if vm.is_error() {
-        //                 ExecutionResultStatus::Revert
-        //             } else {
-        //                 ExecutionResultStatus::Success
-        //             };
-        //             return ExecutionResult {
-        //                 status,
-        //                 return_data: vm.return_data(),
-        //                 gas_left: vm.gas_left(),
-        //                 accessed_addresses: vm.accessed_addresses(),
-        //                 accessed_storage_keys: vm.accessed_storage_keys(),
-        //                 gas_refund: vm.gas_refund(),
-        //             };
-        //         },
-        //         Result::Err(error) => {
-        //             // If an error occurred, revert execution self.
-        //             // Currently, revert reason is a Span<u8>.
-        //             return ExecutionResultTrait::exceptional_failure(
-        //                 error.to_bytes(), vm.accessed_addresses(), vm.accessed_storage_keys(),
-        //             );
-        //         },
-        //     }
-        // }
+             match result {
+                 Result::Ok(_) => {
+                     let status = if vm.is_error() {
+                         ExecutionResultStatus::Revert
+                     } else {
+                         ExecutionResultStatus::Success
+                     };
+                     return ExecutionResult {
+                         status,
+                         return_data: vm.return_data(),
+                         gas_left: vm.gas_left(),
+                         accessed_addresses: vm.accessed_addresses(),
+                         accessed_storage_keys: vm.accessed_storage_keys(),
+                         gas_refund: vm.gas_refund(),
+                     };
+                 },
+                  Result::Err(error) => {
+                     // If an error occurred, revert execution self.
+                     // Currently, revert reason is a Span<u8>.
+                    return ExecutionResultTrait::exceptional_failure(
+                         error.to_bytes(), vm.accessed_addresses(), vm.accessed_storage_keys(),
+                     );
+                 },
+             }
+         }
 
         // Retrieve the current program counter.
         let pc = vm.pc();
