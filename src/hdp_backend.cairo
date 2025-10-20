@@ -1,6 +1,7 @@
 use hdp_cairo::HDP;
 use hdp_cairo::evm::account::{AccountKey, AccountTrait as EvmAccountTrait};
 use hdp_cairo::evm::header::{HeaderKey, HeaderTrait};
+use hdp_cairo::evm::storage::{StorageKey, StorageTrait};
 use starknet::EthAddress;
 use crate::evm::model::AddressTrait;
 use crate::evm::model::account::{Account, AccountTrait};
@@ -28,8 +29,14 @@ pub fn fetch_original_storage(
 
     let is_deployed = account.evm_address().is_deployed(Option::Some(hdp), time_and_space);
     if is_deployed {
-        // TODO: @herodotus [storage] HDP get storage here
-        return 0;
+        let storage_key = StorageKey {
+            chain_id: *time_and_space.chain_id,
+            block_number: *time_and_space.block_number,
+            address: account.evm_address().into(),
+            storage_slot: key,
+        };
+
+        return hdp.evm.storage_get_slot(@storage_key);
     }
     0
 }
@@ -56,8 +63,8 @@ pub fn is_deployed(hdp: Option<@HDP>, time_and_space: @TimeAndSpace, address: @E
     };
 
     // TODO: @herodotus [account] need a reliable way of checking if the account is deployed
-    //! this wont work! nonce can be 0, not a reliable way to check if the account is deployed.
-    hdp.evm.account_get_nonce(@account_key) > 0
+    //! this wont work! it's just a placeholder, probably always says true, unless it panics.
+    hdp.evm.account_get_nonce(@account_key) >= 0
 }
 
 pub fn fetch_balance(
