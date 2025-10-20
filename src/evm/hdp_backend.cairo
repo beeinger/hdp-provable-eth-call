@@ -1,4 +1,6 @@
 use hdp_cairo::HDP;
+use hdp_cairo::evm::account::{AccountKey, AccountTrait as EvmAccountTrait};
+use hdp_cairo::evm::header::{HeaderKey, HeaderTrait};
 use starknet::EthAddress;
 use crate::evm::model::AddressTrait;
 use crate::evm::model::account::{Account, AccountTrait};
@@ -37,21 +39,33 @@ pub fn is_deployed(hdp: Option<@HDP>, address: @EthAddress) -> bool {
     // let mut kakarot_state = KakarotCore::unsafe_new_contract_state();
     // let address = kakarot_state.address_registry(*self);
     // return address.is_non_zero();
-    true
+
+    // TODO: @herodotus [context] get chain id and block number from context.
+    let account_key = AccountKey { chain_id: 1, block_number: 0, address: (*address).into() };
+
+    // TODO: @herodotus [account] need a reliable way of checking if the account is deployed
+    //! this wont work! nonce can be 0, not a reliable way to check if the account is deployed.
+    hdp.evm.account_get_nonce(@account_key) > 0
 }
 
 pub fn fetch_balance(hdp: Option<@HDP>, address: @EthAddress) -> u256 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_balance"));
 
-    // TODO: @herodotus [account] HDP get account balance.
-    0
+    // TODO: @herodotus [context] get chain id and block number from context.
+    let account_key = AccountKey { chain_id: 1, block_number: 0, address: (*address).into() };
+    hdp.evm.account_get_balance(@account_key)
 }
 
 pub fn fetch_nonce(hdp: Option<@HDP>, address: @EthAddress) -> u64 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_nonce"));
 
-    // TODO: @herodotus [account] HDP get account nonce.
-    0
+    // TODO: @herodotus [context] get chain id and block number from context.
+    let account_key = AccountKey { chain_id: 1, block_number: 0, address: (*address).into() };
+    hdp
+        .evm
+        .account_get_nonce(@account_key)
+        .try_into()
+        .unwrap_or_else(|| panic!("Failed to convert nonce to u64"))
 }
 
 pub fn fetch_bytecode(hdp: Option<@HDP>, address: @EthAddress) -> Span<u8> {
@@ -64,15 +78,19 @@ pub fn fetch_bytecode(hdp: Option<@HDP>, address: @EthAddress) -> Span<u8> {
 pub fn fetch_code_hash(hdp: Option<@HDP>, address: @EthAddress) -> u256 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_code_hash"));
 
-    // TODO: @herodotus [account] HDP get account code hash.
-    0
+    // TODO: @herodotus [context] get chain id and block number from context.
+    let account_key = AccountKey { chain_id: 1, block_number: 0, address: (*address).into() };
+    hdp.evm.account_get_code_hash(@account_key)
 }
 
-//? Found this note:
-//? Charge the cost of intrinsic gas - which has been verified to be <= gas_limit.
 pub fn fetch_base_fee(hdp: Option<@HDP>) -> u128 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: get_base_fee"));
 
-    // TODO: [env] get base fee?
-    0
+    // TODO: @herodotus [context] get chain id and block number from context.
+    let header_key = HeaderKey { chain_id: 1, block_number: 0 };
+    hdp
+        .evm
+        .header_get_base_fee_per_gas(@header_key)
+        .try_into()
+        .unwrap_or_else(|| panic!("Failed to convert base fee to u128"))
 }

@@ -1,4 +1,4 @@
-use starknet::EthAddress;
+use core::starknet::EthAddress;
 use crate::utils::errors::{EthTransactionError, RLPError, RLPErrorTrait};
 use crate::utils::eth_transaction::common::{TxKind, TxKindTrait};
 use crate::utils::eth_transaction::eip1559::{TxEip1559, TxEip1559Trait};
