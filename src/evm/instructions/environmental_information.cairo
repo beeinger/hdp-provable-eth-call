@@ -36,7 +36,11 @@ pub impl EnvironmentInformationImpl of EnvironmentInformationTrait {
             self.charge_gas(gas::COLD_ACCOUNT_ACCESS_COST)?
         }
 
-        let balance = self.env.state.get_account(evm_address).balance();
+        let balance = self
+            .env
+            .state
+            .get_account(evm_address, self.hdp, @self.time_and_space)
+            .balance();
         self.stack.push(balance)
     }
 
@@ -180,7 +184,7 @@ pub impl EnvironmentInformationImpl of EnvironmentInformationTrait {
             self.charge_gas(gas::COLD_ACCOUNT_ACCESS_COST)?
         }
 
-        let account = self.env.state.get_account(evm_address);
+        let account = self.env.state.get_account(evm_address, self.hdp, @self.time_and_space);
         self.stack.push(account.code.len().into())
     }
 
@@ -208,7 +212,7 @@ pub impl EnvironmentInformationImpl of EnvironmentInformationTrait {
         };
         self.charge_gas(access_gas_cost + copy_gas_cost + memory_expansion.expansion_cost)?;
 
-        let bytecode = self.env.state.get_account(evm_address).code;
+        let bytecode = self.env.state.get_account(evm_address, self.hdp, @self.time_and_space).code;
         copy_bytes_to_memory(ref self, bytecode, dest_offset, offset, size);
         Result::Ok(())
     }
@@ -271,7 +275,7 @@ pub impl EnvironmentInformationImpl of EnvironmentInformationTrait {
             self.charge_gas(gas::COLD_ACCOUNT_ACCESS_COST)?
         }
 
-        let account = self.env.state.get_account(evm_address);
+        let account = self.env.state.get_account(evm_address, self.hdp, @self.time_and_space);
         // Relevant cases:
         // https://github.com/ethereum/go-ethereum/blob/master/core/vm/instructions.go#L392
         if account.evm_address().is_precompile()

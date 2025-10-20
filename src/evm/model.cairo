@@ -11,6 +11,7 @@ use crate::evm::precompiles::{
     LAST_ETHEREUM_PRECOMPILE_ADDRESS,
 };
 use crate::evm::state::State;
+use crate::hdp_backend::TimeAndSpace;
 pub use crate::hdp_backend::is_deployed;
 use crate::utils::fmt::TSpanSetDebug;
 use crate::utils::set::SpanSet;
@@ -185,6 +186,7 @@ pub struct ExecutionSummary {
 }
 
 /// Represents the result of an EVM transaction.
+#[derive(Destruct)]
 pub struct TransactionResult {
     /// Whether the transaction was successful.
     pub success: bool,
@@ -231,8 +233,8 @@ pub impl AddressImpl of AddressTrait {
     /// # Returns
     ///
     /// `true` if the address is deployed, `false` otherwise.
-    fn is_deployed(self: @EthAddress, hdp: Option<@HDP>) -> bool {
-        is_deployed(hdp, self)
+    fn is_deployed(self: @EthAddress, hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> bool {
+        is_deployed(hdp, time_and_space, self)
     }
 
     /// Checks if the address is a precompile for a call-family opcode.

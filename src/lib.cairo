@@ -8,10 +8,15 @@ pub mod executable {
     use core::keccak::cairo_keccak;
     use core::num::traits::Zero;
     use hdp_cairo::HDP;
+    use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
-    use crate::evm::model::{Environment, Message};
-    use crate::evm::state::State;
+    use crate::evm::model::Message;
+    use crate::hdp_backend::TimeAndSpace;
     use crate::utils::bytecode::{ByteCodeLeWords, OriginalByteCode};
+    use crate::utils::env::get_env;
+    use crate::utils::eth_transaction::common::TxKind;
+    use crate::utils::eth_transaction::eip1559::TxEip1559;
+    use crate::utils::eth_transaction::transaction::Transaction;
 
     #[storage]
     struct Storage {}
@@ -36,18 +41,26 @@ pub mod executable {
         }
 
         let originial_bytecode = byteCode.get_original();
-        // println!("Original bytecode: {:?}", bytecode_bytes);
+
+        let time_and_space = TimeAndSpace { chain_id: 1, block_number: 23600000 };
 
         // decimals()
         let calldata: Span<u8> = [0x31, 0x3c, 0xe5, 0x67].span();
 
+        // beeinger.eth on L1 ETH:
+        let sender = 0x946F7Cc10FB0A6DC70860B6cF55Ef2C722cC7e1a.try_into().unwrap();
+        // ARB ERC20 token on L1 ETH:
+        let target = 0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1.try_into().unwrap();
+        // Resolved proxy address
+        let code_address = 0xAD0C361Ef902A7D9851Ca7DcC85535DA2d3C6Fc7.try_into().unwrap();
+
         let message = Message {
-            caller: Zero::zero(),
-            target: Zero::zero(),
-            gas_limit: 1000000000000,
+            caller: sender,
+            target: target,
+            gas_limit: 50_000_000,
             data: calldata,
             code: originial_bytecode.bytes,
-            code_address: 0xC4ed0A9Ea70d5bCC69f748547650d32cC219D882.try_into().unwrap(),
+            code_address: code_address,
             value: 0,
             should_transfer_value: false,
             depth: 0,
@@ -56,26 +69,60 @@ pub mod executable {
             accessed_storage_keys: Default::default(),
         };
 
-        let env = Environment {
-            origin: Zero::zero(),
-            gas_price: 0,
-            chain_id: 42161,
-            prevrandao: 0,
-            block_number: 2137,
-            block_gas_limit: 1000000000000,
-            block_timestamp: 0,
-            coinbase: 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1.try_into().unwrap(),
-            base_fee: 0,
-            state: State {
-                accounts: Default::default(),
-                accounts_storage: Default::default(),
-                events: Default::default(),
-                transfers: Default::default(),
-                transient_account_storage: Default::default(),
-            },
-        };
+        let env = get_env(sender, 0, Some(@hdp), @time_and_space);
 
-        let result = EVMImpl::process_message_call(message, env, false, Some(@hdp));
+        let result = EVMImpl::process_message_call(
+            message, env, false, Some(@hdp), @time_and_space,
+        );
+        println!("Result: {:?}", result.return_data);
+
+        if result
+            .return_data != [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 18,
+            ]
+            .span() {
+            println!("Result does not match, should be 18");
+            return 0;
+        }
+
+        println!("Result matches");
+        return 1;
+    }
+
+    ///? Usable after HDP bytecode support is here,
+    ///? this is how it should work, the above is just a hack to run bytecode directly.
+    pub fn new_main(ref self: ContractState, hdp: HDP) -> u8 {
+        // decimals()
+        let calldata: Span<u8> = [0x31, 0x3c, 0xe5, 0x67].span();
+
+        let time_and_space = TimeAndSpace { chain_id: 1, block_number: 0 };
+
+        // beeinger.eth on L1 ETH:
+        let sender = 0x946F7Cc10FB0A6DC70860B6cF55Ef2C722cC7e1a.try_into().unwrap();
+        // ARB ERC20 token on L1 ETH:
+        let target = 0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1.try_into().unwrap();
+
+        let tx = Transaction::Eip1559(
+            TxEip1559 {
+                chain_id: 1,
+                nonce: 0,
+                gas_limit: 50_000_000,
+                max_fee_per_gas: 1_000_000_000,
+                max_priority_fee_per_gas: 500_000,
+                to: TxKind::Call(target),
+                value: 0,
+                access_list: [].span(),
+                input: calldata,
+            },
+        );
+
+        let intrinsic_gas_cost = calculate_intrinsic_gas_cost(@tx);
+
+        let result = EVMImpl::process_transaction(
+            sender, tx, intrinsic_gas_cost, Some(@hdp), @time_and_space,
+        );
+
         println!("Result: {:?}", result.return_data);
 
         if result
@@ -92,4 +139,3 @@ pub mod executable {
         return 1;
     }
 }
-

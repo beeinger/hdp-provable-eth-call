@@ -1,21 +1,27 @@
+use hdp_cairo::HDP;
 use starknet::EthAddress;
 use crate::evm::model::Environment;
+use crate::hdp_backend::{
+    TimeAndSpace, fetch_base_fee, fetch_coinbase, fetch_gas_limit, fetch_number, fetch_timestamp,
+};
 
 /// Populate an Environment with Starknet syscalls.
-pub fn get_env(origin: EthAddress, gas_price: u128) -> Environment {
-    // TODO: @herodotus [misc] random stuff in here for now
-    // tx.gas_price and env.gas_price have the same values here
-    // - this is not always true in EVM transactions
+pub fn get_env(
+    origin: EthAddress, gas_price: u128, hdp: Option<@HDP>, time_and_space: @TimeAndSpace,
+) -> Environment {
     Environment {
-        origin: origin,
+        origin,
         gas_price,
-        chain_id: 1,
+        // --------------------
+        // TODO: @herodotus [misc] random stuff in here for now
+        chain_id: (*time_and_space.chain_id).try_into().unwrap(),
         prevrandao: 0x2137,
-        block_number: 2137,
-        block_gas_limit: 7_000_000,
-        block_timestamp: 1760000000,
-        coinbase: 0x0000000000000000000000000000000000000000_u256.into(),
-        base_fee: 1000,
+        // --------------------
+        block_number: fetch_number(hdp, time_and_space),
+        block_gas_limit: fetch_gas_limit(hdp, time_and_space),
+        block_timestamp: fetch_timestamp(hdp, time_and_space),
+        coinbase: fetch_coinbase(hdp, time_and_space),
+        base_fee: fetch_base_fee(hdp, time_and_space),
         state: Default::default(),
     }
 }

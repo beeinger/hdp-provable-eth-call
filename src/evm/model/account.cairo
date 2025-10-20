@@ -6,18 +6,23 @@ use crate::evm::test_utils::test_address;
 use crate::hdp_backend::{fetch_balance, fetch_bytecode, fetch_code_hash, fetch_nonce};
 use crate::utils::constants::EMPTY_KECCAK;
 use crate::utils::traits::bytes::U8SpanExTrait;
+use super::TimeAndSpace;
 
 #[derive(Drop)]
 struct AccountBuilder {
     hdp: Option<@HDP>,
+    time_and_space: @TimeAndSpace,
     account: Account,
 }
 
 #[generate_trait]
 impl AccountBuilderImpl of AccountBuilderTrait {
-    fn new(address: EthAddress, hdp: Option<@HDP>) -> AccountBuilder {
+    fn new(
+        address: EthAddress, hdp: Option<@HDP>, time_and_space: @TimeAndSpace,
+    ) -> AccountBuilder {
         AccountBuilder {
             hdp,
+            time_and_space,
             account: Account {
                 address: address,
                 code: [].span(),
@@ -32,13 +37,13 @@ impl AccountBuilderImpl of AccountBuilderTrait {
 
     #[inline(always)]
     fn fetch_balance(mut self: AccountBuilder) -> AccountBuilder {
-        self.account.balance = fetch_balance(self.hdp, @self.account.address);
+        self.account.balance = fetch_balance(self.hdp, self.time_and_space, @self.account.address);
         self
     }
 
     #[inline(always)]
     fn fetch_nonce(mut self: AccountBuilder) -> AccountBuilder {
-        self.account.nonce = fetch_nonce(self.hdp, @self.account.address);
+        self.account.nonce = fetch_nonce(self.hdp, self.time_and_space, @self.account.address);
         self
     }
 
@@ -50,13 +55,15 @@ impl AccountBuilderImpl of AccountBuilderTrait {
     /// * The bytecode of the Contract Account as a ByteArray
     #[inline(always)]
     fn fetch_bytecode(mut self: AccountBuilder) -> AccountBuilder {
-        self.account.code = fetch_bytecode(self.hdp, @self.account.address);
+        self.account.code = fetch_bytecode(self.hdp, self.time_and_space, @self.account.address);
         self
     }
 
     #[inline(always)]
     fn fetch_code_hash(mut self: AccountBuilder) -> AccountBuilder {
-        self.account.code_hash = fetch_code_hash(self.hdp, @self.account.address);
+        self
+            .account
+            .code_hash = fetch_code_hash(self.hdp, self.time_and_space, @self.account.address);
         self
     }
 
@@ -86,9 +93,11 @@ pub impl AccountImpl of AccountTrait {
     ///
     /// # Returns
     /// The fetched account if it existed, otherwise `None`.
-    fn fetch(evm_address: EthAddress) -> Option<Account> {
+    fn fetch(
+        evm_address: EthAddress, hdp: Option<@HDP>, time_and_space: @TimeAndSpace,
+    ) -> Option<Account> {
         Option::Some(
-            AccountBuilderTrait::new(evm_address, None)
+            AccountBuilderTrait::new(evm_address, hdp, time_and_space)
                 .fetch_nonce()
                 .fetch_bytecode()
                 .fetch_balance()

@@ -46,7 +46,8 @@ pub impl SystemOperations of SystemOperationsTrait {
             gas::COLD_ACCOUNT_ACCESS_COST
         };
 
-        let create_gas_cost = if self.env.state.is_account_alive(to) || value == 0 {
+        let create_gas_cost = if self.env.state.is_account_alive(to, self.hdp, @self.time_and_space)
+            || value == 0 {
             0
         } else {
             gas::NEWACCOUNT
@@ -77,7 +78,11 @@ pub impl SystemOperations of SystemOperationsTrait {
         // If sender_balance < value, return early, pushing
         // 0 on the stack to indicate call failure.
         // The gas cost relative to the transfer is refunded.
-        let sender_balance = self.env.state.get_account(self.message().target).balance();
+        let sender_balance = self
+            .env
+            .state
+            .get_account(self.message().target, self.hdp, @self.time_and_space)
+            .balance();
         if sender_balance < value {
             self.return_data = [].span();
             self.gas_left += message_call_gas.stipend;
@@ -145,7 +150,11 @@ pub impl SystemOperations of SystemOperationsTrait {
         // If sender_balance < value, return early, pushing
         // 0 on the stack to indicate call failure.
         // The gas cost relative to the transfer is refunded.
-        let sender_balance = self.env.state.get_account(self.message().target).balance();
+        let sender_balance = self
+            .env
+            .state
+            .get_account(self.message().target, self.hdp, @self.time_and_space)
+            .balance();
         if sender_balance < value {
             self.return_data = [].span();
             self.gas_left += message_call_gas.stipend;
@@ -324,9 +333,13 @@ pub impl SystemOperations of SystemOperationsTrait {
             gas_cost += gas::COLD_ACCOUNT_ACCESS_COST;
         }
 
-        let mut self_account = self.env.state.get_account(self.message().target);
+        let mut self_account = self
+            .env
+            .state
+            .get_account(self.message().target, self.hdp, @self.time_and_space);
         let self_balance = self_account.balance();
-        if (!self.env.state.is_account_alive(recipient) && self_balance != 0) {
+        if (!self.env.state.is_account_alive(recipient, self.hdp, @self.time_and_space)
+            && self_balance != 0) {
             gas_cost += gas::NEWACCOUNT;
         }
         self.charge_gas(gas_cost)?;
@@ -342,7 +355,10 @@ pub impl SystemOperations of SystemOperationsTrait {
         } else {
             recipient
         };
-        let recipient_account = self.env.state.get_account(recipient_evm_address);
+        let recipient_account = self
+            .env
+            .state
+            .get_account(recipient_evm_address, self.hdp, @self.time_and_space);
         // Transfer balance
         self
             .env
@@ -353,10 +369,15 @@ pub impl SystemOperations of SystemOperationsTrait {
                     recipient: recipient_account.address(),
                     amount: self_balance,
                 },
+                self.hdp,
+                @self.time_and_space,
             )?;
 
         //@dev: get_account again because add_transfer modified its balance
-        self_account = self.env.state.get_account(self.message().target);
+        self_account = self
+            .env
+            .state
+            .get_account(self.message().target, self.hdp, @self.time_and_space);
         // Register for selfdestruct
         self_account.selfdestruct();
         self.env.state.set_account(self_account);
@@ -499,7 +520,10 @@ mod tests {
         // Then
         assert!(!vm.is_error());
         assert!(!vm.is_running());
-        let storage_val = vm.env.state.read_state(None, contract_account.address, 0x42);
+        let storage_val = vm
+            .env
+            .state
+            .read_state(None, @Default::default(), contract_account.address, 0x42);
         assert_eq!(storage_val, 0x42);
     }
 
@@ -615,7 +639,10 @@ mod tests {
         assert!(!vm.is_error());
         assert!(!vm.is_running());
 
-        let storage_val = vm.env.state.read_state(None, vm.message.target, 0x42);
+        let storage_val = vm
+            .env
+            .state
+            .read_state(None, @Default::default(), vm.message.target, 0x42);
 
         assert_eq!(storage_val, 0x42);
     }
@@ -674,7 +701,10 @@ mod tests {
         assert!(!vm.is_error());
         assert!(!vm.is_running());
 
-        let storage_val = vm.env.state.read_state(None, vm.message.target, 0x42);
+        let storage_val = vm
+            .env
+            .state
+            .read_state(None, @Default::default(), vm.message.target, 0x42);
 
         assert_eq!(storage_val, 0x42);
     }
@@ -737,13 +767,17 @@ mod tests {
         let account = vm
             .env
             .state
-            .get_account(0x930b3d8D35621F2e27Db700cA5D16Df771642fdD.try_into().unwrap());
+            .get_account(
+                0x930b3d8D35621F2e27Db700cA5D16Df771642fdD.try_into().unwrap(),
+                None,
+                @Default::default(),
+            );
 
         assert_eq!(account.nonce(), 1);
         assert_eq!(account.code, storage_evm_bytecode());
         assert_eq!(account.balance(), 0);
 
-        let deployer = vm.env.state.get_account(eth_address);
+        let deployer = vm.env.state.get_account(eth_address, None, @Default::default());
         assert_eq!(deployer.nonce(), 2);
         assert_eq!(deployer.balance(), 2);
     }
@@ -795,12 +829,12 @@ mod tests {
         let expected_address = 0x930b3d8D35621F2e27Db700cA5D16Df771642fdD.try_into().unwrap();
 
         // computed using `compute_create_address` script
-        let account = vm.env.state.get_account(expected_address);
+        let account = vm.env.state.get_account(expected_address, None, @Default::default());
         assert_eq!(account.nonce(), 0);
         assert_eq!(account.code.len(), 0);
         assert_eq!(account.balance(), 0);
 
-        let deployer = vm.env.state.get_account(eth_address);
+        let deployer = vm.env.state.get_account(eth_address, None, @Default::default());
         assert_eq!(deployer.nonce(), 2);
         assert_eq!(deployer.balance(), 2);
     }
@@ -868,7 +902,11 @@ mod tests {
         let account = vm
             .env
             .state
-            .get_account(0x0f48B8c382B5234b1a92368ee0f6864a429d0Cb8.try_into().unwrap());
+            .get_account(
+                0x0f48B8c382B5234b1a92368ee0f6864a429d0Cb8.try_into().unwrap(),
+                None,
+                @Default::default(),
+            );
 
         assert(account.nonce() == 1, 'wrong nonce');
         assert(account.code == storage_evm_bytecode(), 'wrong bytecode');
@@ -937,11 +975,17 @@ mod tests {
         vm.exec_selfdestruct().expect('selfdestruct failed');
 
         // Then
-        let contract_account = vm.env.state.get_account(contract_account.address);
+        let contract_account = vm
+            .env
+            .state
+            .get_account(contract_account.address, None, @Default::default());
         assert!(contract_account.is_selfdestruct());
         assert_eq!(contract_account.balance(), 0);
 
-        let burn_account = vm.env.state.get_account(burn_account.address);
+        let burn_account = vm
+            .env
+            .state
+            .get_account(burn_account.address, None, @Default::default());
         assert_eq!(burn_account.balance(), 2);
     }
 
@@ -981,11 +1025,14 @@ mod tests {
         vm.exec_selfdestruct().expect('selfdestruct failed');
 
         // Then
-        let contract_account = vm.env.state.get_account(contract_account.address);
+        let contract_account = vm
+            .env
+            .state
+            .get_account(contract_account.address, None, @Default::default());
         assert!(contract_account.is_selfdestruct());
         assert_eq!(contract_account.balance(), 0);
 
-        let recipient = vm.env.state.get_account(recipient.address);
+        let recipient = vm.env.state.get_account(recipient.address, None, @Default::default());
         assert_eq!(recipient.balance(), 2);
     }
 }

@@ -19,7 +19,7 @@ use crate::evm::model::{
 };
 use crate::evm::precompiles::eth_precompile_addresses;
 use crate::evm::state::StateTrait;
-use crate::hdp_backend::fetch_base_fee;
+use crate::hdp_backend::{TimeAndSpace, fetch_base_fee};
 use crate::utils::address::compute_contract_address;
 use crate::utils::constants;
 use crate::utils::env::get_env;
@@ -35,7 +35,12 @@ use super::precompiles::Precompiles;
 pub impl EVMImpl of EVMTrait {
     fn prepare_message(
         // self: @KakarotCore::ContractState,
-        tx: @Transaction, sender_account: @Account, ref env: Environment, gas_left: u64,
+        tx: @Transaction,
+        sender_account: @Account,
+        ref env: Environment,
+        gas_left: u64,
+        hdp: Option<@HDP>,
+        time_and_space: @TimeAndSpace,
     ) -> (Message, bool) {
         let (to, is_deploy_tx, code, code_address, calldata) = match tx.kind() {
             TxKind::Create => {
@@ -48,7 +53,7 @@ pub impl EVMImpl of EVMTrait {
             },
             TxKind::Call(to) => {
                 let to = to;
-                let code = env.state.get_account(to).code;
+                let code = env.state.get_account(to, hdp, time_and_space).code;
                 (to, false, code, to, tx.input())
             },
         };
@@ -90,24 +95,28 @@ pub impl EVMImpl of EVMTrait {
 
     fn process_transaction(
         // ref self: KakarotCore::ContractState,
-        origin: EthAddress, tx: Transaction, intrinsic_gas: u64, hdp: Option<@HDP>,
+        origin: EthAddress,
+        tx: Transaction,
+        intrinsic_gas: u64,
+        hdp: Option<@HDP>,
+        time_and_space: @TimeAndSpace,
     ) -> TransactionResult {
         // Charge the cost of intrinsic gas - which has been verified to be <= gas_limit.
-        let block_base_fee = fetch_base_fee(hdp);
+        let block_base_fee = fetch_base_fee(hdp, time_and_space);
         let gas_price = tx.effective_gas_price(Option::Some(block_base_fee.into()));
         let gas_left = tx.gas_limit() - intrinsic_gas;
         let max_fee = tx.gas_limit().into() * gas_price;
-        let mut env = get_env(origin, gas_price);
+        let mut env = get_env(origin, gas_price, hdp, time_and_space);
 
         let (message, is_deploy_tx) = {
-            let mut sender_account = env.state.get_account(origin);
+            let mut sender_account = env.state.get_account(origin, hdp, time_and_space);
             // Charge the intrinsic gas to the sender so that it's not available for the execution
             // of the transaction but don't trigger any actual transfer, as only the actual consumde
             // gas is charged at the end of the transaction
             sender_account.set_balance(sender_account.balance() - max_fee.into());
 
             let (message, is_deploy_tx) = Self::prepare_message(
-                @tx, @sender_account, ref env, gas_left,
+                @tx, @sender_account, ref env, gas_left, hdp, time_and_space,
             );
 
             // Increment nonce of sender AFTER computing eventual created address
@@ -122,10 +131,12 @@ pub impl EVMImpl of EVMTrait {
             (message, is_deploy_tx)
         };
 
-        let mut summary = Self::process_message_call(message, env, is_deploy_tx, hdp);
+        let mut summary = Self::process_message_call(
+            message, env, is_deploy_tx, hdp, time_and_space,
+        );
 
         // Cancel the max_fee that was taken from the sender to prevent double charging
-        let mut sender_account = summary.state.get_account(origin);
+        let mut sender_account = summary.state.get_account(origin, hdp, time_and_space);
         sender_account.set_balance(sender_account.balance() + max_fee.into());
         summary.state.set_account(sender_account);
 
@@ -178,10 +189,14 @@ pub impl EVMImpl of EVMTrait {
 
 
     fn process_message_call(
-        message: Message, mut env: Environment, is_deploy_tx: bool, hdp: Option<@HDP>,
+        message: Message,
+        mut env: Environment,
+        is_deploy_tx: bool,
+        hdp: Option<@HDP>,
+        time_and_space: @TimeAndSpace,
     ) -> ExecutionSummary {
         let result = if is_deploy_tx {
-            let mut target_account = env.state.get_account(message.target);
+            let mut target_account = env.state.get_account(message.target, hdp, time_and_space);
             // Check collision
             if target_account.has_code_or_nonce() {
                 return ExecutionSummary {
@@ -193,13 +208,13 @@ pub impl EVMImpl of EVMTrait {
                 };
             }
 
-            let mut result = Self::process_create_message(message, ref env, hdp);
+            let mut result = Self::process_create_message(message, ref env, hdp, time_and_space);
             if result.is_success() {
                 result.return_data = message.target.to_bytes().span();
             }
             result
         } else {
-            Self::process_message(message, ref env, hdp)
+            Self::process_message(message, ref env, hdp, time_and_space)
         };
 
         // No need to take snapshot of state, as the state is still empty at this point.
@@ -213,7 +228,7 @@ pub impl EVMImpl of EVMTrait {
     }
 
     fn process_create_message(
-        message: Message, ref env: Environment, hdp: Option<@HDP>,
+        message: Message, ref env: Environment, hdp: Option<@HDP>, time_and_space: @TimeAndSpace,
     ) -> ExecutionResult {
         //TODO(optimization) - Since the effects of executed code are
         //reverted in the `process_message` function already,
@@ -225,7 +240,7 @@ pub impl EVMImpl of EVMTrait {
         //@dev: Adding a scope block around `target_account` to ensure that the same instance is not
         //being accessed after the state has been modified in `process_message`.
         {
-            let mut target_account = env.state.get_account(target_evm_address);
+            let mut target_account = env.state.get_account(target_evm_address, hdp, time_and_space);
             // Increment nonce of target
             target_account.set_nonce(1);
             // Set the target as created
@@ -234,11 +249,11 @@ pub impl EVMImpl of EVMTrait {
             env.state.set_account(target_account);
         }
 
-        let mut result = Self::process_message(message, ref env, hdp);
+        let mut result = Self::process_message(message, ref env, hdp, time_and_space);
         if result.is_success() {
             // Write the return_data of the initcode
             // as the deployed contract's bytecode and charge gas
-            let target_account = env.state.get_account(target_evm_address);
+            let target_account = env.state.get_account(target_evm_address, hdp, time_and_space);
             match result.finalize_creation(target_account) {
                 Result::Ok(account_created) => { env.state.set_account(account_created) },
                 Result::Err(err) => {
@@ -257,7 +272,7 @@ pub impl EVMImpl of EVMTrait {
     }
 
     fn process_message(
-        message: Message, ref env: Environment, hdp: Option<@HDP>,
+        message: Message, ref env: Environment, hdp: Option<@HDP>, time_and_space: @TimeAndSpace,
     ) -> ExecutionResult {
         if (message.depth > constants::STACK_MAX_DEPTH) {
             // Because the failure happens before any modification to warm address/storage,
@@ -273,7 +288,7 @@ pub impl EVMImpl of EVMTrait {
             let transfer = Transfer {
                 sender: message.caller, recipient: message.target, amount: message.value,
             };
-            match env.state.add_transfer(transfer) {
+            match env.state.add_transfer(transfer, hdp, time_and_space) {
                 Result::Ok(_) => {},
                 Result::Err(err) => {
                     return ExecutionResultTrait::exceptional_failure(
@@ -284,7 +299,7 @@ pub impl EVMImpl of EVMTrait {
         }
 
         // Instantiate a new VM using the message to process and the current environment.
-        let mut vm: VM = VMTrait::new(message, env, hdp);
+        let mut vm: VM = VMTrait::new(message, env, hdp, *time_and_space);
 
         // Decode and execute the current opcode.
         // until we have processed all opcodes or until we have stopped.
@@ -1074,7 +1089,7 @@ mod tests {
         );
 
         let (message, is_deploy_tx) = EVMImpl::prepare_message(
-            @tx, @sender_account, ref env, tx.gas_limit(),
+            @tx, @sender_account, ref env, tx.gas_limit(), None, @Default::default(),
         );
 
         assert_eq!(is_deploy_tx, true);
@@ -1107,7 +1122,7 @@ mod tests {
         );
 
         let (message, is_deploy_tx) = EVMImpl::prepare_message(
-            @tx, @sender_account, ref env, tx.gas_limit(),
+            @tx, @sender_account, ref env, tx.gas_limit(), None, @Default::default(),
         );
 
         assert_eq!(is_deploy_tx, false);

@@ -60,7 +60,11 @@ pub impl CreateHelpersImpl of CreateHelpers {
 
         let to = match create_type {
             CreateType::Create => {
-                let nonce = self.env.state.get_account(self.message().target).nonce();
+                let nonce = self
+                    .env
+                    .state
+                    .get_account(self.message().target, self.hdp, @self.time_and_space)
+                    .nonce();
                 compute_contract_address(self.message().target, sender_nonce: nonce)
             },
             CreateType::Create2 => compute_create2_contract_address(
@@ -87,7 +91,7 @@ pub impl CreateHelpersImpl of CreateHelpers {
 
         // The sender in the subcontext is the message's target
         let sender_address = self.message().target;
-        let mut sender = self.env.state.get_account(sender_address);
+        let mut sender = self.env.state.get_account(sender_address, self.hdp, @self.time_and_space);
         let sender_current_nonce = sender.nonce();
         if sender.balance() < create_args.value
             || sender_current_nonce == Bounded::<u64>::MAX
@@ -96,7 +100,10 @@ pub impl CreateHelpersImpl of CreateHelpers {
             return self.stack.push(0);
         }
 
-        let mut target_account = self.env.state.get_account(create_args.to);
+        let mut target_account = self
+            .env
+            .state
+            .get_account(create_args.to, self.hdp, @self.time_and_space);
         let target_address = target_account.address();
         // Collision happens if the target account loaded in state has code or nonce set, meaning
         // - it's deployed on SN and is an active EVM contract
@@ -127,7 +134,9 @@ pub impl CreateHelpersImpl of CreateHelpers {
             accessed_storage_keys: self.accessed_storage_keys.clone().spanset(),
         };
 
-        let result = EVMTrait::process_create_message(child_message, ref self.env, self.hdp);
+        let result = EVMTrait::process_create_message(
+            child_message, ref self.env, self.hdp, @self.time_and_space,
+        );
         self.merge_child(@result);
 
         match result.status {

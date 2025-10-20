@@ -68,7 +68,7 @@ pub impl CallHelpersImpl of CallHelpers {
         self.memory.load_n(args_size, ref calldata, args_offset);
 
         // We enter the standard flow
-        let code_account = self.env.state.get_account(code_address);
+        let code_account = self.env.state.get_account(code_address, self.hdp, @self.time_and_space);
         let read_only = is_staticcall || self.message.read_only;
 
         let to = to;
@@ -89,7 +89,9 @@ pub impl CallHelpersImpl of CallHelpers {
             accessed_storage_keys: self.accessed_storage_keys.clone().spanset(),
         };
 
-        let result = EVMTrait::process_message(message, ref self.env, self.hdp);
+        let result = EVMTrait::process_message(
+            message, ref self.env, self.hdp, @self.time_and_space,
+        );
         self.merge_child(@result);
 
         match result.status {

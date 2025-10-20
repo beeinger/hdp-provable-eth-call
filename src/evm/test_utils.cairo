@@ -252,6 +252,7 @@ pub fn preset_vm() -> VM {
     let return_data = [1, 2, 3].span();
     VM {
         hdp: None,
+        time_and_space: Default::default(),
         stack: Default::default(),
         memory: Default::default(),
         pc: 0,

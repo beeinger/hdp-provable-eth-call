@@ -9,7 +9,7 @@ use starknet::storage_access::{StorageBaseAddress, storage_base_address_from_fel
 use crate::evm::errors::{BALANCE_OVERFLOW, EVMError, ensure};
 use crate::evm::model::account::{Account, AccountTrait};
 use crate::evm::model::{Event, Transfer};
-use crate::hdp_backend::fetch_original_storage;
+use crate::hdp_backend::{TimeAndSpace, fetch_original_storage};
 use crate::utils::set::{Set, SetTrait};
 
 /// The `StateChangeLog` tracks the changes applied to storage during the execution of a
@@ -135,14 +135,16 @@ pub impl StateImpl of StateTrait {
     /// # Returns
     ///
     /// The `Account` associated with the given EVM address.
-    fn get_account(ref self: State, evm_address: EthAddress) -> Account {
+    fn get_account(
+        ref self: State, evm_address: EthAddress, hdp: Option<@HDP>, time_and_space: @TimeAndSpace,
+    ) -> Account {
         //? This also has to stay, and we only fetch the unaccessed account from HDP, because
         //? someone can spend money within transaction etc? Idk if we need this, TBD.
         let maybe_account = self.accounts.read(evm_address.into());
         match maybe_account {
             Option::Some(acc) => { return acc; },
             Option::None => {
-                let account = AccountTrait::fetch(evm_address)
+                let account = AccountTrait::fetch(evm_address, hdp, time_and_space)
                     .unwrap_or_else(
                         || panic!("Accessed account does not exist: {:?}", evm_address),
                     );
@@ -177,7 +179,13 @@ pub impl StateImpl of StateTrait {
     ///
     /// The value stored at the given address and key.
     #[inline(always)]
-    fn read_state(ref self: State, hdp: Option<@HDP>, evm_address: EthAddress, key: u256) -> u256 {
+    fn read_state(
+        ref self: State,
+        hdp: Option<@HDP>,
+        time_and_space: @TimeAndSpace,
+        evm_address: EthAddress,
+        key: u256,
+    ) -> u256 {
         //? This makes sense, if the key does not exist in our storage in memory it means we need to
         //? get it with HDP, but it can exist because some EVM bytecode can influence the storage.
         let internal_key = compute_storage_key(evm_address, key);
@@ -185,8 +193,8 @@ pub impl StateImpl of StateTrait {
         match maybe_entry {
             Option::Some((_, _, value)) => { return value; },
             Option::None => {
-                let account = self.get_account(evm_address);
-                return fetch_original_storage(hdp, @account, key);
+                let account = self.get_account(evm_address, hdp, time_and_space);
+                return fetch_original_storage(hdp, time_and_space, @account, key);
             },
         }
     }
@@ -227,12 +235,14 @@ pub impl StateImpl of StateTrait {
     ///
     /// A `Result` indicating success or an `EVMError` if the transfer fails.
     #[inline(always)]
-    fn add_transfer(ref self: State, transfer: Transfer) -> Result<(), EVMError> {
+    fn add_transfer(
+        ref self: State, transfer: Transfer, hdp: Option<@HDP>, time_and_space: @TimeAndSpace,
+    ) -> Result<(), EVMError> {
         if (transfer.amount == 0 || transfer.sender == transfer.recipient) {
             return Result::Ok(());
         }
-        let mut sender = self.get_account(transfer.sender);
-        let mut recipient = self.get_account(transfer.recipient);
+        let mut sender = self.get_account(transfer.sender, hdp, time_and_space);
+        let mut recipient = self.get_account(transfer.recipient, hdp, time_and_space);
 
         let (new_sender_balance, underflow) = sender.balance().overflowing_sub(transfer.amount);
         ensure(!underflow, EVMError::InsufficientBalance)?;
@@ -316,8 +326,10 @@ pub impl StateImpl of StateTrait {
     ///
     /// `true` if the account exists and is non-empty, `false` otherwise.
     #[inline(always)]
-    fn is_account_alive(ref self: State, evm_address: EthAddress) -> bool {
-        let account = self.get_account(evm_address);
+    fn is_account_alive(
+        ref self: State, evm_address: EthAddress, hdp: Option<@HDP>, time_and_space: @TimeAndSpace,
+    ) -> bool {
+        let account = self.get_account(evm_address, hdp, time_and_space);
         return !(account.nonce == 0 && account.code.len() == 0 && account.balance == 0);
     }
 }

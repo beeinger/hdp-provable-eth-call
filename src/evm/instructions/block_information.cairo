@@ -99,7 +99,11 @@ pub impl BlockInformation of BlockInformationTrait {
 
         let evm_address = self.message().target;
 
-        let balance = self.env.state.get_account(evm_address).balance;
+        let balance = self
+            .env
+            .state
+            .get_account(evm_address, self.hdp, @self.time_and_space)
+            .balance;
 
         self.stack.push(balance)
     }

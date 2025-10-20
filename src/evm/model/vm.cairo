@@ -9,10 +9,12 @@ use crate::evm::model::{AccountTrait, Environment, ExecutionResult, ExecutionRes
 use crate::evm::stack::Stack;
 use crate::utils::set::{Set, SetTrait, SpanSet, SpanSetTrait};
 use crate::utils::traits::SpanDefault;
+use super::TimeAndSpace;
 
-#[derive(Default, Destruct)]
+#[derive(Destruct, Default)]
 pub struct VM {
     pub hdp: Option<@HDP>,
+    pub time_and_space: TimeAndSpace,
     pub stack: Stack,
     pub memory: Memory,
     pub pc: usize,
@@ -32,9 +34,12 @@ pub struct VM {
 #[generate_trait]
 pub impl VMImpl of VMTrait {
     #[inline(always)]
-    fn new(message: Message, env: Environment, hdp: Option<@HDP>) -> VM {
+    fn new(
+        message: Message, env: Environment, hdp: Option<@HDP>, time_and_space: TimeAndSpace,
+    ) -> VM {
         VM {
             hdp,
+            time_and_space,
             stack: Default::default(),
             memory: Default::default(),
             pc: 0,
@@ -188,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_vm_default() {
-        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None, Default::default());
 
         assert!(vm.pc() == 0);
         assert!(vm.is_running());
@@ -199,7 +204,7 @@ mod tests {
 
     #[test]
     fn test_set_pc() {
-        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None, Default::default());
 
         let new_pc = 42;
         vm.set_pc(new_pc);
@@ -209,7 +214,7 @@ mod tests {
 
     #[test]
     fn test_error() {
-        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None, Default::default());
 
         vm.set_error();
 
@@ -218,7 +223,7 @@ mod tests {
 
     #[test]
     fn test_increment_gas_checked() {
-        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None, Default::default());
 
         assert_eq!(vm.gas_left(), vm.message().gas_limit);
 
@@ -229,7 +234,7 @@ mod tests {
 
     #[test]
     fn test_set_stopped() {
-        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None, Default::default());
 
         vm.stop();
 
@@ -274,7 +279,7 @@ mod tests {
 
     #[test]
     fn test_set_return() {
-        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None, Default::default());
         vm.set_return_data([0x01, 0x02, 0x03].span());
         let return_data = vm.return_data();
         assert(return_data == [0x01, 0x02, 0x03].span(), 'wrong return data');
@@ -282,7 +287,7 @@ mod tests {
 
     #[test]
     fn test_return_data() {
-        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None, Default::default());
 
         let return_data = vm.return_data();
         assert(return_data.len() == 0, 'wrong length');
@@ -294,7 +299,7 @@ mod tests {
         let mut message: Message = Default::default();
         message.code = [0x60, 0x3, 0x56, 0x5b, 0x60, 0x9, 0x56, 0x60, 0x2, 0x5b, 0x60, 0x2].span();
 
-        let mut vm = VMTrait::new(message, Default::default(), None);
+        let mut vm = VMTrait::new(message, Default::default(), None, Default::default());
 
         assert!(vm.is_valid_jump(0x3), "expected jump to be valid");
         assert!(vm.is_valid_jump(0x9), "expected jump to be valid");
@@ -308,7 +313,7 @@ mod tests {
         let mut message: Message = Default::default();
         message.code = [0x60, 0x5B, 0x60, 0x00].span();
 
-        let mut vm = VMTrait::new(message, Default::default(), None);
+        let mut vm = VMTrait::new(message, Default::default(), None, Default::default());
         assert!(!vm.is_valid_jump(0x1), "expected false");
     }
 }

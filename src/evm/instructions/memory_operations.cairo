@@ -93,7 +93,7 @@ pub impl MemoryOperation of MemoryOperationTrait {
             self.charge_gas(gas::COLD_SLOAD_COST)?;
         }
 
-        let value = self.env.state.read_state(self.hdp, evm_address, key);
+        let value = self.env.state.read_state(self.hdp, @self.time_and_space, evm_address, key);
         self.stack.push(value)
     }
 
@@ -107,11 +107,14 @@ pub impl MemoryOperation of MemoryOperationTrait {
         ensure(self.gas_left() > gas::CALL_STIPEND, EVMError::OutOfGas)?; // EIP-1706
 
         let evm_address = self.message().target;
-        let account = self.env.state.get_account(evm_address);
+        let account = self.env.state.get_account(evm_address, self.hdp, @self.time_and_space);
 
-        let original_value = fetch_original_storage(self.hdp, @account, key);
+        let original_value = fetch_original_storage(self.hdp, @self.time_and_space, @account, key);
 
-        let current_value = self.env.state.read_state(self.hdp, evm_address, key);
+        let current_value = self
+            .env
+            .state
+            .read_state(self.hdp, @self.time_and_space, evm_address, key);
 
         // GAS
         let mut gas_cost = 0;
