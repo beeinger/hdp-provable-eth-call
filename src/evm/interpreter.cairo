@@ -27,6 +27,8 @@ use crate::utils::eth_transaction::transaction::{Transaction, TransactionTrait};
 use crate::utils::set::{Set, SetTrait};
 use crate::utils::traits::eth_address::EthAddressExTrait;
 use super::hdp_backend::get_base_fee;
+use super::model::AddressTrait;
+use super::precompiles::Precompiles;
 
 #[generate_trait]
 pub impl EVMImpl of EVMTrait {
@@ -303,8 +305,8 @@ pub impl EVMImpl of EVMTrait {
         //! For some reason uncommenting this code breaks the whole function, even println at the
         //! beginning of the function doesnt work.
         // Handle precompile logic
-        // if vm.message.code_address.evm.is_precompile() {
-        //     println!("precompile");
+
+        // if vm.message.code_address.is_precompile() {
         //     let result = Precompiles::exec_precompile(ref vm);
 
         //     match result {

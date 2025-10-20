@@ -53,7 +53,15 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 - [ ] fix precompiles in [interpreter.cairo](./src/evm/interpreter.cairo) search for: `[precompiles]`
 - [ ] resolve `[misc]` TODOs along the way
 - [ ] Cleanup & brainstorm how to tackle Environment and Message structs setup in [lib.cairo](./src/lib.cairo)
+
   - [ ] Especially Environment stuff like gas price, chain id, randao, block number, gas limit, timestamp, coinbase, base fee - they all have to come from somewhere
+
+- [ ] Create a new folder `solidity` for testing contracts to use
+  - [ ] basic function, just simple bytecode
+  - [ ] more advanced functions
+    - [ ] using storage slots
+    - [ ] using precompiles
+  - [ ] proxy contract
 
 ---
 
