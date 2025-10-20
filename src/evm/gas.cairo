@@ -273,7 +273,7 @@ pub fn calculate_intrinsic_gas_cost(tx: @Transaction) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use core::starknet::EthAddress;
+    use starknet::EthAddress;
     use crate::evm::gas::{
         ACCESS_LIST_ADDRESS, ACCESS_LIST_STORAGE_KEY, calculate_intrinsic_gas_cost,
         calculate_memory_gas_cost,

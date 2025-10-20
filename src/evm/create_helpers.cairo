@@ -1,5 +1,5 @@
 use core::num::traits::{Bounded, Zero};
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::evm::errors::{EVMError, ensure};
 use crate::evm::gas;
 use crate::evm::interpreter::EVMTrait;

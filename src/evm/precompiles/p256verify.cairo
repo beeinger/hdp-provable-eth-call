@@ -1,6 +1,6 @@
-use core::starknet::secp256_trait::{Secp256Trait, is_valid_signature};
-use core::starknet::secp256r1::Secp256r1Point;
-use core::starknet::{EthAddress, SyscallResultTrait};
+use starknet::secp256_trait::{Secp256Trait, is_valid_signature};
+use starknet::secp256r1::Secp256r1Point;
+use starknet::{EthAddress, SyscallResultTrait};
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::Precompile;
 use crate::utils::traits::bytes::FromBytes;

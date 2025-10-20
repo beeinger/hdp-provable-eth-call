@@ -2,8 +2,8 @@ pub mod account;
 pub mod vm;
 use account::{Account, AccountTrait};
 use core::num::traits::{CheckedSub, Zero};
-use core::starknet::{ContractAddress, EthAddress};
 use hdp_cairo::HDP;
+use starknet::{ContractAddress, EthAddress};
 pub use vm::{VM, VMTrait};
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::{

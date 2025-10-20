@@ -1,5 +1,5 @@
 use core::sha256::compute_sha256_u32_array;
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::Precompile;
 use crate::utils::math::Bitshift;

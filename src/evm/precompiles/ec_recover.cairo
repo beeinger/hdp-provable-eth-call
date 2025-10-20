@@ -1,8 +1,8 @@
-use core::starknet::eth_signature::public_key_point_to_eth_address;
-use core::starknet::secp256_trait::{Secp256PointTrait, Signature, recover_public_key};
-use core::starknet::secp256k1::Secp256k1Point;
-use core::starknet::{EthAddress, SyscallResultTrait};
 use core::traits::Into;
+use starknet::eth_signature::public_key_point_to_eth_address;
+use starknet::secp256_trait::{Secp256PointTrait, Signature, recover_public_key};
+use starknet::secp256k1::Secp256k1Point;
+use starknet::{EthAddress, SyscallResultTrait};
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::Precompile;
 use crate::utils::traits::bytes::{FromBytes, ToBytes, U8SpanExTrait};

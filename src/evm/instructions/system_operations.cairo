@@ -368,8 +368,8 @@ pub impl SystemOperations of SystemOperationsTrait {
 #[cfg(test)]
 mod tests {
     use core::result::ResultTrait;
-    use core::starknet::EthAddress;
     use core::traits::TryInto;
+    use starknet::EthAddress;
     use crate::evm::call_helpers::CallHelpersImpl;
     use crate::evm::instructions::{MemoryOperationTrait, SystemOperationsTrait};
     use crate::evm::interpreter::EVMTrait;

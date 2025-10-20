@@ -1,6 +1,6 @@
 use core::array::ArrayTrait;
 use core::option::OptionTrait;
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::evm::errors::{EVMError, ensure};
 use crate::evm::precompiles::Precompile;
 use crate::utils::crypto::blake2_compress::compress;

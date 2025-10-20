@@ -3,8 +3,8 @@ use core::circuit::{
     EvalCircuitTrait, circuit_inverse, circuit_mul, circuit_sub, u384,
 };
 use core::option::Option;
-use core::starknet::EthAddress;
 use garaga::core::circuit::AddInputResultTrait2;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::Precompile;
 use crate::evm::precompiles::ec_operations::{

@@ -1,4 +1,4 @@
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::utils::math::Bitshift;
 use crate::utils::traits::EthAddressIntoU256;
 
@@ -53,7 +53,7 @@ pub impl EthAddressExImpl of EthAddressExTrait {
 
 #[cfg(test)]
 mod tests {
-    use core::starknet::EthAddress;
+    use starknet::EthAddress;
     use super::EthAddressExTrait;
     #[test]
     fn test_eth_address_to_bytes() {

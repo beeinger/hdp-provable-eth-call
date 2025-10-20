@@ -1,8 +1,8 @@
 use core::num::traits::{Bounded, Zero};
-// use core::ops::SnapshotDeref;
-use core::starknet::EthAddress;
-use core::starknet::storage::StoragePointerReadAccess;
 use hdp_cairo::HDP;
+// use core::ops::SnapshotDeref;
+use starknet::EthAddress;
+use starknet::storage::StoragePointerReadAccess;
 use crate::evm::create_helpers::CreateHelpers;
 use crate::evm::errors::{EVMError, EVMErrorTrait};
 use crate::evm::instructions::{

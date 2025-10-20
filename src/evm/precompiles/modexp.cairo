@@ -4,8 +4,8 @@ use core::num::traits::{Bounded, OverflowingAdd};
 // [revm](https://github.com/bluealloy/revm/blob/main/crates/precompile/src/modexp.rs)
 
 use core::option::OptionTrait;
-use core::starknet::EthAddress;
 use core::traits::TryInto;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::Precompile;
 use crate::utils::crypto::modexp::lib::modexp;
@@ -150,14 +150,14 @@ fn calculate_iteration_count(exp_length: u64, exp_highp: u256) -> u64 {
 #[cfg(tests)]
 mod tests {
     use core::result::ResultTrait;
-    use core::starknet::EthAddress;
-    use core::starknet::testing::set_contract_address;
     use evm_tests::test_precompiles::test_data::test_data_modexp::{
         test_modexp_create2callPrecompiles_test0_berlin_data, test_modexp_eip198_example_1_data,
         test_modexp_eip198_example_2_data, test_modexp_modsize0_returndatasizeFiller_data,
         test_modexp_nagydani_1_qube_data, test_modexp_nagydani_1_square_data,
     };
     use snforge_std::{start_mock_call, test_address};
+    use starknet::EthAddress;
+    use starknet::testing::set_contract_address;
     use utils::helpers::U256Trait;
     use crate::instructions::SystemOperationsTrait;
     use crate::memory::MemoryTrait;

@@ -1,4 +1,4 @@
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::Precompile;
 

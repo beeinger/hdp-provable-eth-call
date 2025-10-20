@@ -1,6 +1,6 @@
 //! CALL, CALLCODE, DELEGATECALL, STATICCALL opcode helpers
 use core::cmp::min;
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::evm::interpreter::EVMTrait;
 use crate::evm::memory::MemoryTrait;

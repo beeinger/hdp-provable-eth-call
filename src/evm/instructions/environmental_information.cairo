@@ -298,7 +298,7 @@ fn copy_bytes_to_memory(
 
 #[cfg(test)]
 mod tests {
-    use core::starknet::EthAddress;
+    use starknet::EthAddress;
     use crate::evm::errors::{EVMError, TYPE_CONVERSION_ERROR};
     use crate::evm::instructions::EnvironmentInformationTrait;
     use crate::evm::memory::{InternalMemoryTrait, MemoryTrait};

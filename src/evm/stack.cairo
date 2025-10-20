@@ -16,7 +16,7 @@ use core::dict::{Felt252Dict, Felt252DictTrait};
 //! ```
 use core::nullable::{NullableTrait};
 use core::num::traits::Bounded;
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::evm::errors::{EVMError, ensure};
 use crate::utils::constants;
 use crate::utils::i256::i256;

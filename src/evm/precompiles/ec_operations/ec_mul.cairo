@@ -1,6 +1,6 @@
 use core::circuit::u384;
 use core::option::Option;
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::Precompile;
 use crate::evm::precompiles::ec_operations::ec_add::ec_safe_add;

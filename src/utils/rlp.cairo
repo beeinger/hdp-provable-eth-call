@@ -1,7 +1,7 @@
 use core::array::{ArrayTrait, SpanTrait};
 use core::option::OptionTrait;
 use core::panic_with_felt252;
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 use crate::utils::errors::RLPError;
 use crate::utils::eth_transaction::eip2930::AccessListItem;
 use crate::utils::traits::array::ArrayExtension;

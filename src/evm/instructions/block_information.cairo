@@ -1,7 +1,7 @@
 //! Block Information.
 
-use core::starknet::SyscallResultTrait;
-use core::starknet::syscalls::get_block_hash_syscall;
+use starknet::SyscallResultTrait;
+use starknet::syscalls::get_block_hash_syscall;
 use crate::evm::errors::EVMError;
 use crate::evm::gas;
 use crate::evm::model::vm::{VM, VMTrait};

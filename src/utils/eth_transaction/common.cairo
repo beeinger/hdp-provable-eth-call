@@ -1,4 +1,4 @@
-use core::starknet::EthAddress;
+use starknet::EthAddress;
 
 /// The `to` field of a transaction. Either a target address, or empty for a
 /// contract creation.

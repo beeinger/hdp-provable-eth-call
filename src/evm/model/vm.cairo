@@ -1,8 +1,8 @@
 use core::cmp::min;
 use core::dict::{Felt252Dict, Felt252DictTrait};
 use core::num::traits::{CheckedSub, SaturatingSub};
-use core::starknet::EthAddress;
 use hdp_cairo::HDP;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::evm::memory::Memory;
 use crate::evm::model::{AccountTrait, Environment, ExecutionResult, ExecutionResultStatus, Message};

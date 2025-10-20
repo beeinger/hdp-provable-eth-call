@@ -4,9 +4,9 @@ pub mod eth_address;
 pub mod integer;
 use core::array::SpanTrait;
 use core::num::traits::{One, Zero};
-use core::starknet::secp256_trait::Signature;
-use core::starknet::storage_access::{StorageBaseAddress, storage_address_from_base};
-use core::starknet::{ContractAddress, EthAddress};
+use starknet::secp256_trait::Signature;
+use starknet::storage_access::{StorageBaseAddress, storage_address_from_base};
+use starknet::{ContractAddress, EthAddress};
 use crate::evm::errors::{EVMError, TYPE_CONVERSION_ERROR, ensure};
 use crate::utils::math::Bitshift;
 
@@ -142,7 +142,7 @@ pub impl U8IntoEthAddress of Into<u8, EthAddress> {
 
 #[cfg(test)]
 mod tests {
-    use core::starknet::storage_access::storage_base_address_from_felt252;
+    use starknet::storage_access::storage_base_address_from_felt252;
     use crate::utils::traits::StorageBaseAddressPartialEq;
 
     #[test]

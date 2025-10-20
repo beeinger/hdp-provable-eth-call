@@ -7,7 +7,6 @@ mod p256verify;
 mod sha256;
 
 pub use blake2f::Blake2f;
-use core::starknet::EthAddress;
 use core::traits::Into;
 pub use ec_operations::ec_add::EcAdd;
 pub use ec_operations::ec_mul::EcMul;
@@ -16,6 +15,7 @@ pub use identity::Identity;
 pub use modexp::ModExp;
 pub use p256verify::P256Verify;
 pub use sha256::Sha256;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::evm::model::vm::{VM, VMTrait};
 use crate::utils::set::{Set, SetTrait};

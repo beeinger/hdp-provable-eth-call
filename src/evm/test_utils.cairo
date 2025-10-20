@@ -1,9 +1,8 @@
 use core::ops::DerefMut;
-use core::starknet::storage::{StoragePathEntry, StoragePointerWriteAccess};
-use core::starknet::storage_access::{StorageBaseAddress, storage_base_address_from_felt252};
-use core::starknet::{ClassHash, ContractAddress, EthAddress, contract_address_const};
 use core::traits::TryInto;
-use starknet::storage::StorageTraitMut;
+use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageTraitMut};
+use starknet::storage_access::{StorageBaseAddress, storage_base_address_from_felt252};
+use starknet::{ClassHash, ContractAddress, EthAddress, contract_address_const};
 use crate::evm::memory::{Memory, MemoryTrait};
 use crate::evm::model::account::AccountTrait;
 use crate::evm::model::vm::{VM, VMTrait};

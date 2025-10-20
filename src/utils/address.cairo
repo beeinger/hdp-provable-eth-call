@@ -1,6 +1,6 @@
 use core::array::ArrayTrait;
-use core::starknet::EthAddress;
 use core::traits::TryInto;
+use starknet::EthAddress;
 use crate::evm::errors::EVMError;
 use crate::utils::rlp::{RLPItem, RLPTrait};
 use crate::utils::traits::TryIntoResult;
@@ -66,7 +66,7 @@ pub fn compute_create2_contract_address(
 
 #[cfg(test)]
 mod tests {
-    use core::starknet::EthAddress;
+    use starknet::EthAddress;
     use crate::utils::address::{compute_contract_address, compute_create2_contract_address};
     use crate::utils::contracts_test_data::counter_evm_bytecode;
 
