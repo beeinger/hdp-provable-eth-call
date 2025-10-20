@@ -82,7 +82,7 @@ pub impl PrecompilesImpl of Precompiles {
     /// * `Result<(), EVMError>` - Ok if the precompile execution was successful, or an error if it
     /// failed.
     fn exec_precompile(ref vm: VM) -> Result<(), EVMError> {
-        let precompile_address = vm.message.code_address.evm;
+        let precompile_address = vm.message.code_address;
         let input = vm.message().data;
 
         let (gas, result) = if precompile_address.into() == 0x100 {

@@ -6,7 +6,7 @@ use core::traits::TryInto;
 use starknet::storage::StorageTraitMut;
 use crate::evm::memory::{Memory, MemoryTrait};
 use crate::evm::model::vm::{VM, VMTrait};
-use crate::evm::model::{AccountTrait, Address, Environment, Message};
+use crate::evm::model::{AccountTrait, Environment, Message};
 use crate::utils::constants;
 
 pub fn uninitialized_account() -> ClassHash {
@@ -55,7 +55,7 @@ pub impl VMBuilderImpl of VMBuilderTrait {
         self
     }
 
-    fn with_caller(mut self: VMBuilder, address: Address) -> VMBuilder {
+    fn with_caller(mut self: VMBuilder, address: EthAddress) -> VMBuilder {
         self.vm.message.caller = address;
         self
     }
@@ -95,7 +95,7 @@ pub impl VMBuilderImpl of VMBuilderTrait {
     //     self
     // }
 
-    fn with_target(mut self: VMBuilder, target: Address) -> VMBuilder {
+    fn with_target(mut self: VMBuilder, target: EthAddress) -> VMBuilder {
         self.vm.message.target = target;
         self
     }
@@ -115,12 +115,8 @@ pub fn origin() -> EthAddress {
     'origin'.try_into().unwrap()
 }
 
-pub fn dual_origin() -> Address {
-    let origin_evm = origin();
-    let origin_starknet = crate::utils::helpers::compute_starknet_address(
-        test_address(), origin_evm, uninitialized_account(),
-    );
-    Address { evm: origin_evm, starknet: origin_starknet }
+pub fn dual_origin() -> EthAddress {
+    origin()
 }
 
 pub fn caller() -> EthAddress {
@@ -139,8 +135,8 @@ pub fn evm_address() -> EthAddress {
     'evm_address'.try_into().unwrap()
 }
 
-pub fn test_dual_address() -> Address {
-    Address { evm: evm_address(), starknet: starknet_address() }
+pub fn test_dual_address() -> EthAddress {
+    evm_address()
 }
 
 pub fn other_evm_address() -> EthAddress {
@@ -151,8 +147,8 @@ pub fn other_starknet_address() -> ContractAddress {
     contract_address_const::<'other_starknet_address'>()
 }
 
-pub fn other_address() -> Address {
-    Address { evm: other_evm_address(), starknet: other_starknet_address() }
+pub fn other_address() -> EthAddress {
+    other_evm_address()
 }
 
 pub fn storage_base_address() -> StorageBaseAddress {
@@ -211,18 +207,8 @@ pub fn preset_message() -> Message {
     let code: Span<u8> = [0x00].span();
     let data: Span<u8> = [4, 5, 6].span();
     let value: u256 = callvalue();
-    let caller = Address {
-        evm: origin(),
-        starknet: crate::utils::helpers::compute_starknet_address(
-            test_address(), origin(), uninitialized_account(),
-        ),
-    };
-    let target = Address {
-        evm: evm_address(),
-        starknet: crate::utils::helpers::compute_starknet_address(
-            test_address(), evm_address(), uninitialized_account(),
-        ),
-    };
+    let caller = origin();
+    let target = evm_address();
     let code_address = target;
     let read_only = false;
     let tx_gas_limit = tx_gas_limit();

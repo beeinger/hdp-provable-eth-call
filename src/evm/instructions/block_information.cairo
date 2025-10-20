@@ -97,7 +97,7 @@ pub impl BlockInformation of BlockInformationTrait {
     fn exec_selfbalance(ref self: VM) -> Result<(), EVMError> {
         self.charge_gas(gas::LOW)?;
 
-        let evm_address = self.message().target.evm;
+        let evm_address = self.message().target;
 
         let balance = self.env.state.get_account(evm_address).balance;
 

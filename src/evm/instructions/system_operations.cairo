@@ -77,7 +77,7 @@ pub impl SystemOperations of SystemOperationsTrait {
         // If sender_balance < value, return early, pushing
         // 0 on the stack to indicate call failure.
         // The gas cost relative to the transfer is refunded.
-        let sender_balance = self.env.state.get_account(self.message().target.evm).balance();
+        let sender_balance = self.env.state.get_account(self.message().target).balance();
         if sender_balance < value {
             self.return_data = [].span();
             self.gas_left += message_call_gas.stipend;
@@ -88,7 +88,7 @@ pub impl SystemOperations of SystemOperationsTrait {
             .generic_call(
                 gas: message_call_gas.stipend,
                 :value,
-                caller: self.message().target.evm,
+                caller: self.message().target,
                 :to,
                 code_address: to,
                 should_transfer_value: true,
@@ -112,7 +112,7 @@ pub impl SystemOperations of SystemOperationsTrait {
         let ret_offset = self.stack.pop_saturating_usize()?;
         let ret_size = self.stack.pop_usize()?;
 
-        let to = self.message().target.evm;
+        let to = self.message().target;
 
         // GAS
         let memory_expansion = gas::memory_expansion(
@@ -145,7 +145,7 @@ pub impl SystemOperations of SystemOperationsTrait {
         // If sender_balance < value, return early, pushing
         // 0 on the stack to indicate call failure.
         // The gas cost relative to the transfer is refunded.
-        let sender_balance = self.env.state.get_account(self.message().target.evm).balance();
+        let sender_balance = self.env.state.get_account(self.message().target).balance();
         if sender_balance < value {
             self.return_data = [].span();
             self.gas_left += message_call_gas.stipend;
@@ -156,7 +156,7 @@ pub impl SystemOperations of SystemOperationsTrait {
             .generic_call(
                 message_call_gas.stipend,
                 value,
-                self.message().target.evm,
+                self.message().target,
                 to,
                 code_address,
                 true,
@@ -218,8 +218,8 @@ pub impl SystemOperations of SystemOperationsTrait {
             .generic_call(
                 message_call_gas.stipend,
                 self.message().value,
-                self.message().caller.evm,
-                self.message().target.evm,
+                self.message().caller,
+                self.message().target,
                 code_address,
                 false,
                 false,
@@ -271,7 +271,7 @@ pub impl SystemOperations of SystemOperationsTrait {
             .generic_call(
                 message_call_gas.stipend,
                 0,
-                self.message().target.evm,
+                self.message().target,
                 to,
                 to,
                 true,
@@ -324,7 +324,7 @@ pub impl SystemOperations of SystemOperationsTrait {
             gas_cost += gas::COLD_ACCOUNT_ACCESS_COST;
         }
 
-        let mut self_account = self.env.state.get_account(self.message().target.evm);
+        let mut self_account = self.env.state.get_account(self.message().target);
         let self_balance = self_account.balance();
         if (!self.env.state.is_account_alive(recipient) && self_balance != 0) {
             gas_cost += gas::NEWACCOUNT;
@@ -356,7 +356,7 @@ pub impl SystemOperations of SystemOperationsTrait {
             )?;
 
         //@dev: get_account again because add_transfer modified its balance
-        self_account = self.env.state.get_account(self.message().target.evm);
+        self_account = self.env.state.get_account(self.message().target);
         // Register for selfdestruct
         self_account.selfdestruct();
         self.env.state.set_account(self_account);
@@ -373,9 +373,9 @@ mod tests {
     use crate::evm::call_helpers::CallHelpersImpl;
     use crate::evm::instructions::{MemoryOperationTrait, SystemOperationsTrait};
     use crate::evm::interpreter::EVMTrait;
+    use crate::evm::model::AccountTrait;
     use crate::evm::model::account::Account;
     use crate::evm::model::vm::VMTrait;
-    use crate::evm::model::{AccountTrait, Address};
     use crate::evm::stack::StackTrait;
     use crate::evm::state::StateTrait;
     use crate::evm::test_utils::{
@@ -484,7 +484,7 @@ mod tests {
             .span();
         let code_hash = deployed_bytecode.compute_keccak256_hash();
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 0,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -500,7 +500,7 @@ mod tests {
         // Then
         assert!(!vm.is_error());
         assert!(!vm.is_running());
-        let storage_val = vm.env.state.read_state(contract_account.address.evm, 0x42);
+        let storage_val = vm.env.state.read_state(contract_account.address, 0x42);
         assert_eq!(storage_val, 0x42);
     }
 
@@ -542,7 +542,7 @@ mod tests {
             .span();
         let code_hash = deployed_bytecode.compute_keccak256_hash();
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 0,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -599,7 +599,7 @@ mod tests {
             test_address(), eth_address, 0.try_into().unwrap(),
         );
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 0,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -616,7 +616,7 @@ mod tests {
         assert!(!vm.is_error());
         assert!(!vm.is_running());
 
-        let storage_val = vm.env.state.read_state(vm.message.target.evm, 0x42);
+        let storage_val = vm.env.state.read_state(vm.message.target, 0x42);
 
         assert_eq!(storage_val, 0x42);
     }
@@ -658,7 +658,7 @@ mod tests {
             test_address(), eth_address, 0.try_into().unwrap(),
         );
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 0,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -675,7 +675,7 @@ mod tests {
         assert!(!vm.is_error());
         assert!(!vm.is_running());
 
-        let storage_val = vm.env.state.read_state(vm.message.target.evm, 0x42);
+        let storage_val = vm.env.state.read_state(vm.message.target, 0x42);
 
         assert_eq!(storage_val, 0x42);
     }
@@ -695,12 +695,7 @@ mod tests {
             test_address(), eth_address, uninitialized_account(),
         );
         let origin_account = Account {
-            address: Address {
-                evm: origin(),
-                starknet: compute_starknet_address(
-                    test_address(), origin(), uninitialized_account(),
-                ),
-            },
+            address: eth_address,
             balance: 2,
             code: [].span(),
             code_hash: EMPTY_KECCAK,
@@ -710,7 +705,7 @@ mod tests {
         };
         let code_hash = deployed_bytecode.compute_keccak256_hash();
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 2,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -762,16 +757,8 @@ mod tests {
 
         let deployed_bytecode = [0xFF].span();
         let eth_address: EthAddress = evm_address();
-        let starknet_address = compute_starknet_address(
-            test_address(), eth_address, 0.try_into().unwrap(),
-        );
         let origin_account = Account {
-            address: Address {
-                evm: origin(),
-                starknet: compute_starknet_address(
-                    test_address(), origin(), uninitialized_account(),
-                ),
-            },
+            address: eth_address,
             balance: 2,
             code: [].span(),
             code_hash: EMPTY_KECCAK,
@@ -781,7 +768,7 @@ mod tests {
         };
         let code_hash = deployed_bytecode.compute_keccak256_hash();
         let deployer = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 2,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -826,16 +813,8 @@ mod tests {
 
         let deployed_bytecode = [0xff].span();
         let eth_address: EthAddress = evm_address();
-        let starknet_address = compute_starknet_address(
-            test_address(), eth_address, 0.try_into().unwrap(),
-        );
         let origin_account = Account {
-            address: Address {
-                evm: origin(),
-                starknet: compute_starknet_address(
-                    test_address(), origin(), uninitialized_account(),
-                ),
-            },
+            address: eth_address,
             balance: 2,
             code: [].span(),
             code_hash: EMPTY_KECCAK,
@@ -845,7 +824,7 @@ mod tests {
         };
         let code_hash = deployed_bytecode.compute_keccak256_hash();
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 2,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -901,12 +880,9 @@ mod tests {
         // Given
         let deployed_bytecode = [0xff].span();
         let eth_address: EthAddress = evm_address();
-        let starknet_address = compute_starknet_address(
-            test_address(), eth_address, 0.try_into().unwrap(),
-        );
         let code_hash = deployed_bytecode.compute_keccak256_hash();
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 2,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -921,7 +897,7 @@ mod tests {
         vm.env.state.set_account(contract_account);
 
         // When
-        vm.stack.push(contract_account.address.evm.into()).unwrap();
+        vm.stack.push(contract_account.address.into()).unwrap();
         let res = vm.exec_selfdestruct();
         // Then
         assert!(res.is_err())
@@ -932,12 +908,9 @@ mod tests {
         // Given
         let deployed_bytecode = [0xff].span();
         let eth_address: EthAddress = evm_address();
-        let starknet_address = compute_starknet_address(
-            test_address(), eth_address, 0.try_into().unwrap(),
-        );
         let code_hash = deployed_bytecode.compute_keccak256_hash();
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 2,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -946,12 +919,7 @@ mod tests {
             selfdestruct: false,
         };
         let burn_account = Account {
-            address: Address {
-                evm: 0.try_into().unwrap(),
-                starknet: compute_starknet_address(
-                    test_address(), 0.try_into().unwrap(), 0.try_into().unwrap(),
-                ),
-            },
+            address: 0.try_into().unwrap(),
             balance: 0,
             code: [].span(),
             code_hash: EMPTY_KECCAK,
@@ -966,15 +934,15 @@ mod tests {
         vm.env.state.set_account(contract_account);
 
         // When
-        vm.stack.push(contract_account.address.evm.into()).unwrap();
+        vm.stack.push(contract_account.address.into()).unwrap();
         vm.exec_selfdestruct().expect('selfdestruct failed');
 
         // Then
-        let contract_account = vm.env.state.get_account(contract_account.address.evm);
+        let contract_account = vm.env.state.get_account(contract_account.address);
         assert!(contract_account.is_selfdestruct());
         assert_eq!(contract_account.balance(), 0);
 
-        let burn_account = vm.env.state.get_account(burn_account.address.evm);
+        let burn_account = vm.env.state.get_account(burn_account.address);
         assert_eq!(burn_account.balance(), 2);
     }
 
@@ -983,12 +951,9 @@ mod tests {
         // Given
         let deployed_bytecode = [0xff].span();
         let eth_address: EthAddress = evm_address();
-        let starknet_address = compute_starknet_address(
-            test_address(), eth_address, 0.try_into().unwrap(),
-        );
         let code_hash = deployed_bytecode.compute_keccak256_hash();
         let contract_account = Account {
-            address: Address { evm: eth_address, starknet: starknet_address },
+            address: eth_address,
             balance: 2,
             code: deployed_bytecode,
             code_hash: code_hash,
@@ -997,12 +962,7 @@ mod tests {
             selfdestruct: false,
         };
         let recipient = Account {
-            address: Address {
-                evm: 'recipient'.try_into().unwrap(),
-                starknet: compute_starknet_address(
-                    test_address(), 'recipient'.try_into().unwrap(), 0.try_into().unwrap(),
-                ),
-            },
+            address: 'recipient'.try_into().unwrap(),
             balance: 0,
             code: [].span(),
             code_hash: EMPTY_KECCAK,
@@ -1018,15 +978,15 @@ mod tests {
         vm.env.state.set_account(recipient);
 
         // When
-        vm.stack.push(recipient.address.evm.into()).unwrap();
+        vm.stack.push(recipient.address.into()).unwrap();
         vm.exec_selfdestruct().expect('selfdestruct failed');
 
         // Then
-        let contract_account = vm.env.state.get_account(contract_account.address.evm);
+        let contract_account = vm.env.state.get_account(contract_account.address);
         assert!(contract_account.is_selfdestruct());
         assert_eq!(contract_account.balance(), 0);
 
-        let recipient = vm.env.state.get_account(recipient.address.evm);
+        let recipient = vm.env.state.get_account(recipient.address);
         assert_eq!(recipient.balance(), 2);
     }
 }

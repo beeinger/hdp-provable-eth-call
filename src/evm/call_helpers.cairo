@@ -5,7 +5,7 @@ use crate::evm::errors::EVMError;
 use crate::evm::interpreter::EVMTrait;
 use crate::evm::memory::MemoryTrait;
 use crate::evm::model::vm::{VM, VMTrait};
-use crate::evm::model::{Address, ExecutionResultStatus, Message};
+use crate::evm::model::{ExecutionResultStatus, Message};
 use crate::evm::stack::StackTrait;
 use crate::evm::state::StateTrait;
 use crate::utils::constants;
@@ -17,9 +17,9 @@ use super::test_utils::test_address;
 /// Created in order to simplify setting up the call opcodes
 #[derive(Drop, PartialEq)]
 pub struct CallArgs {
-    caller: Address,
-    code_address: Address,
-    to: Address,
+    caller: EthAddress,
+    code_address: EthAddress,
+    to: EthAddress,
     gas: u128,
     value: u256,
     calldata: Span<u8>,
@@ -71,8 +71,8 @@ pub impl CallHelpersImpl of CallHelpers {
         let code_account = self.env.state.get_account(code_address);
         let read_only = is_staticcall || self.message.read_only;
 
-        let to = Address { evm: to, starknet: test_address() };
-        let caller = Address { evm: caller, starknet: test_address() };
+        let to = to;
+        let caller = caller;
 
         let message = Message {
             caller,

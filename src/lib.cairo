@@ -5,12 +5,11 @@ pub mod utils;
 #[starknet::contract]
 pub mod executable {
     use core::keccak::cairo_keccak;
+    use core::num::traits::Zero;
     use hdp_cairo::HDP;
-    use starknet::EthAddress;
     use crate::evm::interpreter::EVMImpl;
-    use crate::evm::model::{Address, Environment, Message, ZeroAddress};
+    use crate::evm::model::{Environment, Message};
     use crate::evm::state::State;
-    use crate::evm::test_utils::test_address;
     use crate::utils::bytecode::{ByteCodeLeWords, OriginalByteCode};
 
     #[storage]
@@ -42,15 +41,12 @@ pub mod executable {
         let calldata: Span<u8> = [0x31, 0x3c, 0xe5, 0x67].span();
 
         let message = Message {
-            caller: ZeroAddress::zero(),
-            target: ZeroAddress::zero(),
+            caller: Zero::zero(),
+            target: Zero::zero(),
             gas_limit: 1000000000000,
             data: calldata,
             code: originial_bytecode.bytes,
-            code_address: Address {
-                evm: 0xC4ed0A9Ea70d5bCC69f748547650d32cC219D882.try_into().unwrap(),
-                starknet: test_address(),
-            },
+            code_address: 0xC4ed0A9Ea70d5bCC69f748547650d32cC219D882.try_into().unwrap(),
             value: 0,
             should_transfer_value: false,
             depth: 0,
@@ -60,7 +56,7 @@ pub mod executable {
         };
 
         let env = Environment {
-            origin: ZeroAddress::zero(),
+            origin: Zero::zero(),
             gas_price: 0,
             chain_id: 42161,
             prevrandao: 0,

@@ -19,7 +19,7 @@ pub impl EnvironmentInformationImpl of EnvironmentInformationTrait {
     /// # Specification: https://www.evm.codes/#30?fork=shanghai
     fn exec_address(ref self: VM) -> Result<(), EVMError> {
         self.charge_gas(gas::BASE)?;
-        self.stack.push(self.message().target.evm.into())
+        self.stack.push(self.message().target.into())
     }
 
     /// 0x31 - BALANCE opcode.
@@ -45,7 +45,7 @@ pub impl EnvironmentInformationImpl of EnvironmentInformationTrait {
     /// # Specification: https://www.evm.codes/#32?fork=shanghai
     fn exec_origin(ref self: VM) -> Result<(), EVMError> {
         self.charge_gas(gas::BASE)?;
-        self.stack.push(self.env.origin.evm.into())
+        self.stack.push(self.env.origin.into())
     }
 
     /// 0x33 - CALLER
@@ -53,7 +53,7 @@ pub impl EnvironmentInformationImpl of EnvironmentInformationTrait {
     /// # Specification: https://www.evm.codes/#33?fork=shanghai
     fn exec_caller(ref self: VM) -> Result<(), EVMError> {
         self.charge_gas(gas::BASE)?;
-        self.stack.push(self.message().caller.evm.into())
+        self.stack.push(self.message().caller.into())
     }
 
     /// 0x34 - CALLVALUE
@@ -302,8 +302,8 @@ mod tests {
     use crate::evm::errors::{EVMError, TYPE_CONVERSION_ERROR};
     use crate::evm::instructions::EnvironmentInformationTrait;
     use crate::evm::memory::{InternalMemoryTrait, MemoryTrait};
+    use crate::evm::model::Account;
     use crate::evm::model::vm::VMTrait;
-    use crate::evm::model::{Account, Address};
     use crate::evm::stack::StackTrait;
     use crate::evm::state::StateTrait;
     use crate::evm::test_utils::{VMBuilderTrait, callvalue, gas_price, origin, test_address};
@@ -386,7 +386,7 @@ mod tests {
 
         // Then
         assert_eq!(vm.stack.len(), 1);
-        assert_eq!(vm.stack.pop_eth_address().unwrap(), vm.message().target.evm.into());
+        assert_eq!(vm.stack.pop_eth_address().unwrap(), vm.message().target.into());
     }
 
     // *************************************************************************
@@ -406,7 +406,7 @@ mod tests {
             is_created: true,
         };
         vm.env.state.set_account(account);
-        vm.stack.push(vm.message.target.evm.into()).unwrap();
+        vm.stack.push(vm.message.target.into()).unwrap();
 
         // When
         vm.exec_balance().expect('exec_balance failed');
@@ -445,7 +445,7 @@ mod tests {
 
         // Then
         assert_eq!(vm.stack.len(), 1);
-        assert_eq!(vm.stack.peek().unwrap(), vm.env.origin.evm.into());
+        assert_eq!(vm.stack.peek().unwrap(), vm.env.origin.into());
     }
 
 
@@ -819,7 +819,7 @@ mod tests {
             is_created: true,
         };
         vm.env.state.set_account(account);
-        vm.stack.push(account.address.evm.into()).expect('push failed');
+        vm.stack.push(account.address.into()).expect('push failed');
 
         // When
         vm.exec_extcodesize().unwrap();
@@ -844,7 +844,7 @@ mod tests {
             is_created: true,
         };
         vm.env.state.set_account(account);
-        vm.stack.push(account.address.evm.into()).expect('push failed');
+        vm.stack.push(account.address.into()).expect('push failed');
 
         // When
         vm.exec_extcodesize().unwrap();
@@ -874,14 +874,14 @@ mod tests {
         };
         vm.env.state.set_account(account);
 
-        vm.stack.push(account.address.evm.into()).expect('push failed');
+        vm.stack.push(account.address.into()).expect('push failed');
         // size
         vm.stack.push(50).expect('push failed');
         // offset
         vm.stack.push(200).expect('push failed');
         // destOffset (memory offset)
         vm.stack.push(20).expect('push failed');
-        vm.stack.push(account.address.evm.into()).unwrap();
+        vm.stack.push(account.address.into()).unwrap();
 
         // When
         vm.exec_extcodecopy().unwrap();
@@ -908,7 +908,7 @@ mod tests {
             is_created: true,
         };
         vm.env.state.set_account(account);
-        vm.stack.push(account.address.evm.into()).expect('push failed');
+        vm.stack.push(account.address.into()).expect('push failed');
 
         // size
         vm.stack.push(5).expect('push failed');
@@ -916,7 +916,7 @@ mod tests {
         vm.stack.push(5000).expect('push failed');
         // destOffset
         vm.stack.push(20).expect('push failed');
-        vm.stack.push(account.address.evm.into()).expect('push failed');
+        vm.stack.push(account.address.into()).expect('push failed');
 
         // When
         vm.exec_extcodecopy().unwrap();
@@ -1049,11 +1049,8 @@ mod tests {
             crate::evm::precompiles::LAST_ETHEREUM_PRECOMPILE_ADDRESS
             .try_into()
             .unwrap();
-        let precompile_starknet_address = compute_starknet_address(
-            test_address(), precompile_evm_address, 0.try_into().unwrap(),
-        );
         let account = Account {
-            address: Address { evm: precompile_evm_address, starknet: precompile_starknet_address },
+            address: precompile_evm_address,
             balance: 1,
             nonce: 0,
             code: [].span(),
@@ -1085,7 +1082,7 @@ mod tests {
             is_created: true,
         };
         vm.env.state.set_account(account);
-        vm.stack.push(account.address.evm.into()).expect('push failed');
+        vm.stack.push(account.address.into()).expect('push failed');
 
         // When
         vm.exec_extcodehash().unwrap();
@@ -1108,7 +1105,7 @@ mod tests {
             is_created: true,
         };
         vm.env.state.set_account(account);
-        vm.stack.push(account.address.evm.into()).expect('push failed');
+        vm.stack.push(account.address.into()).expect('push failed');
 
         // When
         vm.exec_extcodehash().unwrap();
@@ -1133,7 +1130,7 @@ mod tests {
             is_created: true,
         };
         vm.env.state.set_account(account);
-        vm.stack.push(account.address.evm.into()).expect('push failed');
+        vm.stack.push(account.address.into()).expect('push failed');
 
         // When
         vm.exec_extcodehash().unwrap();

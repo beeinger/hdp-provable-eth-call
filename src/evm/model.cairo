@@ -18,7 +18,7 @@ use crate::utils::traits::{ContractAddressDefault, EthAddressDefault, SpanDefaul
 #[derive(Destruct, Default)]
 pub struct Environment {
     /// The origin address of the transaction.
-    pub origin: Address,
+    pub origin: EthAddress,
     /// The gas price for the transaction.
     pub gas_price: u128,
     /// The chain ID of the network.
@@ -43,9 +43,9 @@ pub struct Environment {
 #[derive(Copy, Drop, Default, PartialEq, Debug)]
 pub struct Message {
     /// The address of the caller.
-    pub caller: Address,
+    pub caller: EthAddress,
     /// The target address of the call.
-    pub target: Address,
+    pub target: EthAddress,
     /// The gas limit for the call.
     pub gas_limit: u64,
     /// The data passed to the call.
@@ -53,7 +53,7 @@ pub struct Message {
     /// The code of the contract being called.
     pub code: Span<u8>,
     /// The address of the code being executed.
-    pub code_address: Address,
+    pub code_address: EthAddress,
     /// The value sent with the call.
     pub value: u256,
     /// Whether the value should be transferred.
@@ -222,27 +222,6 @@ pub struct Event {
     pub data: Array<u8>,
 }
 
-/// Represents an address in both EVM and Starknet formats.
-#[derive(Copy, Drop, PartialEq, Default, Debug)]
-pub struct Address {
-    /// The EVM address.
-    pub evm: EthAddress,
-    /// The Starknet address.
-    pub starknet: ContractAddress,
-}
-
-pub impl ZeroAddress of core::num::traits::Zero<Address> {
-    fn zero() -> Address {
-        Address { evm: Zero::zero(), starknet: Zero::zero() }
-    }
-    fn is_zero(self: @Address) -> bool {
-        self.evm.is_zero() && self.starknet.is_zero()
-    }
-    fn is_non_zero(self: @Address) -> bool {
-        !self.is_zero()
-    }
-}
-
 #[generate_trait]
 pub impl AddressImpl of AddressTrait {
     /// Checks if the EVM address is deployed.
@@ -277,9 +256,9 @@ pub impl AddressImpl of AddressTrait {
 #[derive(Copy, Drop, PartialEq, Debug)]
 pub struct Transfer {
     /// The sender of the transfer.
-    pub sender: Address,
+    pub sender: EthAddress,
     /// The recipient of the transfer.
-    pub recipient: Address,
+    pub recipient: EthAddress,
     /// The amount of tokens to transfer.
     pub amount: u256,
 }

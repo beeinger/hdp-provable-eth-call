@@ -1,7 +1,6 @@
 use core::dict::{Felt252Dict, Felt252DictTrait};
 use core::num::traits::Zero;
 use core::starknet::{ContractAddress, EthAddress};
-use crate::evm::model::Address;
 use crate::evm::test_utils::test_address;
 use crate::utils::constants::EMPTY_KECCAK;
 use crate::utils::traits::bytes::U8SpanExTrait;
@@ -13,7 +12,7 @@ struct AccountBuilder {
 
 #[generate_trait]
 impl AccountBuilderImpl of AccountBuilderTrait {
-    fn new(address: Address) -> AccountBuilder {
+    fn new(address: EthAddress) -> AccountBuilder {
         AccountBuilder {
             account: Account {
                 address: address,
@@ -77,7 +76,7 @@ impl AccountBuilderImpl of AccountBuilderTrait {
 
 #[derive(Copy, Drop, PartialEq, Debug)]
 pub struct Account {
-    pub address: Address,
+    pub address: EthAddress,
     pub code: Span<u8>,
     pub code_hash: u256,
     pub nonce: u64,
@@ -136,10 +135,8 @@ pub impl AccountImpl of AccountTrait {
 
         panic!("fetch account from starknet not implemented");
 
-        let starknet_address = test_address();
-        let address = Address { starknet: starknet_address, evm: evm_address };
         Option::Some(
-            AccountBuilderTrait::new(address)
+            AccountBuilderTrait::new(evm_address)
                 .fetch_nonce()
                 .fetch_bytecode()
                 .fetch_balance()
@@ -185,18 +182,13 @@ pub impl AccountImpl of AccountTrait {
     }
 
     #[inline(always)]
-    fn address(self: @Account) -> Address {
+    fn address(self: @Account) -> EthAddress {
         *self.address
     }
 
     #[inline(always)]
     fn evm_address(self: @Account) -> EthAddress {
-        *self.address.evm
-    }
-
-    #[inline(always)]
-    fn starknet_address(self: @Account) -> ContractAddress {
-        *self.address.starknet
+        *self.address
     }
 
     /// Returns the bytecode of the EVM account (EOA or CA)
@@ -293,14 +285,14 @@ pub impl AccountImpl of AccountTrait {
 #[cfg(test)]
 mod tests {
     mod test_has_code_or_nonce {
-        use crate::evm::model::account::{Account, AccountTrait, Address};
+        use crate::evm::model::account::{Account, AccountTrait};
         use crate::utils::constants::EMPTY_KECCAK;
         use crate::utils::traits::bytes::U8SpanExTrait;
 
         #[test]
         fn test_should_return_false_when_empty() {
             let account = Account {
-                address: Address { evm: 1.try_into().unwrap(), starknet: 1.try_into().unwrap() },
+                address: 1.try_into().unwrap(),
                 nonce: 0,
                 code: [].span(),
                 code_hash: EMPTY_KECCAK,
@@ -317,7 +309,7 @@ mod tests {
             let bytecode = [0x5b].span();
             let code_hash = bytecode.compute_keccak256_hash();
             let account = Account {
-                address: Address { evm: 1.try_into().unwrap(), starknet: 1.try_into().unwrap() },
+                address: 1.try_into().unwrap(),
                 nonce: 1,
                 code: bytecode,
                 code_hash: code_hash,
@@ -332,7 +324,7 @@ mod tests {
         #[test]
         fn test_should_return_true_when_nonce() {
             let account = Account {
-                address: Address { evm: 1.try_into().unwrap(), starknet: 1.try_into().unwrap() },
+                address: 1.try_into().unwrap(),
                 nonce: 1,
                 code: [].span(),
                 code_hash: EMPTY_KECCAK,

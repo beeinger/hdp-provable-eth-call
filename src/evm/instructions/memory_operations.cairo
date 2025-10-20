@@ -82,7 +82,7 @@ pub impl MemoryOperation of MemoryOperationTrait {
     /// # Specification: https://www.evm.codes/#54?fork=shanghai
     fn exec_sload(ref self: VM) -> Result<(), EVMError> {
         let key = self.stack.pop()?;
-        let evm_address = self.message().target.evm;
+        let evm_address = self.message().target;
 
         // GAS
         if self.accessed_storage_keys.contains((evm_address, key)) {
@@ -105,7 +105,7 @@ pub impl MemoryOperation of MemoryOperationTrait {
         let new_value = self.stack.pop()?;
         ensure(self.gas_left() > gas::CALL_STIPEND, EVMError::OutOfGas)?; // EIP-1706
 
-        let evm_address = self.message().target.evm;
+        let evm_address = self.message().target;
         let account = self.env.state.get_account(evm_address);
 
         // TODO: @beeinger potentially HDP here
@@ -255,7 +255,7 @@ pub impl MemoryOperation of MemoryOperationTrait {
     /// # Specification: https://www.evm.codes/#5c?fork=cancun
     fn exec_tload(ref self: VM) -> Result<(), EVMError> {
         let key = self.stack.pop()?;
-        let evm_address = self.message().target.evm;
+        let evm_address = self.message().target;
 
         self.charge_gas(gas::WARM_ACCESS_COST)?;
 
@@ -273,7 +273,7 @@ pub impl MemoryOperation of MemoryOperationTrait {
         self.charge_gas(gas::WARM_ACCESS_COST)?;
 
         ensure(!self.message().read_only, EVMError::WriteInStaticContext)?;
-        self.env.state.write_transient_storage(self.message().target.evm, key, value);
+        self.env.state.write_transient_storage(self.message().target, key, value);
 
         return Result::Ok(());
     }
@@ -313,14 +313,11 @@ mod tests {
     use crate::evm::gas;
     use crate::evm::instructions::MemoryOperationTrait;
     use crate::evm::memory::MemoryTrait;
+    use crate::evm::model::AccountTrait;
     use crate::evm::model::vm::VMTrait;
-    use crate::evm::model::{Account, AccountTrait, Address};
     use crate::evm::stack::StackTrait;
     use crate::evm::state::StateTrait;
-    use crate::evm::test_utils::{
-        MemoryTestUtilsTrait, VMBuilderTrait, native_token, uninitialized_account,
-    };
-    use crate::utils::helpers::compute_starknet_address;
+    use crate::evm::test_utils::{MemoryTestUtilsTrait, VMBuilderTrait};
     use crate::utils::traits::bytes::U8SpanExTrait;
 
     #[test]
@@ -957,7 +954,7 @@ mod tests {
         let mut vm = VMBuilderTrait::new_with_presets().build();
         let key: u256 = 0x100000000000000000000000000000001;
         let value: u256 = 0xABDE1E11A5;
-        vm.env.state.write_transient_storage(vm.message().target.evm, key, value);
+        vm.env.state.write_transient_storage(vm.message().target, key, value);
         vm.stack.push(key.into()).expect('push failed');
 
         // When
@@ -1007,8 +1004,7 @@ mod tests {
 
         // Then
         assert(
-            vm.env.state.read_transient_storage(vm.message().target.evm, key) == value,
-            'tstore failed',
+            vm.env.state.read_transient_storage(vm.message().target, key) == value, 'tstore failed',
         );
         assert(gas_before - gas_after == gas::WARM_ACCESS_COST, 'gas charged error');
     }

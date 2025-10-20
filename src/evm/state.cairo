@@ -226,11 +226,11 @@ pub impl StateImpl of StateTrait {
     /// A `Result` indicating success or an `EVMError` if the transfer fails.
     #[inline(always)]
     fn add_transfer(ref self: State, transfer: Transfer) -> Result<(), EVMError> {
-        if (transfer.amount == 0 || transfer.sender.evm == transfer.recipient.evm) {
+        if (transfer.amount == 0 || transfer.sender == transfer.recipient) {
             return Result::Ok(());
         }
-        let mut sender = self.get_account(transfer.sender.evm);
-        let mut recipient = self.get_account(transfer.recipient.evm);
+        let mut sender = self.get_account(transfer.sender);
+        let mut recipient = self.get_account(transfer.recipient);
 
         let (new_sender_balance, underflow) = sender.balance().overflowing_sub(transfer.amount);
         ensure(!underflow, EVMError::InsufficientBalance)?;

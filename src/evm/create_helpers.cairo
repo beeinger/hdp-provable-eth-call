@@ -60,11 +60,11 @@ pub impl CreateHelpersImpl of CreateHelpers {
 
         let to = match create_type {
             CreateType::Create => {
-                let nonce = self.env.state.get_account(self.message().target.evm).nonce();
-                compute_contract_address(self.message().target.evm, sender_nonce: nonce)
+                let nonce = self.env.state.get_account(self.message().target).nonce();
+                compute_contract_address(self.message().target, sender_nonce: nonce)
             },
             CreateType::Create2 => compute_create2_contract_address(
-                self.message().target.evm, salt: self.stack.pop()?, bytecode: bytecode.span(),
+                self.message().target, salt: self.stack.pop()?, bytecode: bytecode.span(),
             )?,
         };
 
@@ -87,7 +87,7 @@ pub impl CreateHelpersImpl of CreateHelpers {
 
         // The sender in the subcontext is the message's target
         let sender_address = self.message().target;
-        let mut sender = self.env.state.get_account(sender_address.evm);
+        let mut sender = self.env.state.get_account(sender_address);
         let sender_current_nonce = sender.nonce();
         if sender.balance() < create_args.value
             || sender_current_nonce == Bounded::<u64>::MAX
@@ -133,7 +133,7 @@ pub impl CreateHelpersImpl of CreateHelpers {
         match result.status {
             ExecutionResultStatus::Success => {
                 self.return_data = [].span();
-                self.stack.push(target_address.evm.into())?;
+                self.stack.push(target_address.into())?;
             },
             ExecutionResultStatus::Revert => {
                 self.return_data = result.return_data;

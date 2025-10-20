@@ -13,9 +13,8 @@ use crate::evm::instructions::{
 use crate::evm::model::account::{Account, AccountTrait};
 use crate::evm::model::vm::{VM, VMTrait};
 use crate::evm::model::{
-    Address, AddressTrait, Environment, ExecutionResult, ExecutionResultStatus,
-    ExecutionResultTrait, ExecutionSummary, Message, TransactionResult, TransactionResultTrait,
-    Transfer,
+    AddressTrait, Environment, ExecutionResult, ExecutionResultStatus, ExecutionResultTrait,
+    ExecutionSummary, Message, TransactionResult, TransactionResultTrait, Transfer,
 };
 use crate::evm::precompiles::{Precompiles, eth_precompile_addresses};
 use crate::evm::state::StateTrait;
@@ -39,28 +38,28 @@ pub impl EVMImpl of EVMTrait {
             TxKind::Create => {
                 let origin_nonce: u64 = sender_account.nonce();
                 let to_evm_address = compute_contract_address(
-                    sender_account.address().evm, origin_nonce,
+                    sender_account.address(), origin_nonce,
                 );
                 // TODO: @beeinger
                 // let to_starknet_address = self.compute_starknet_address(to_evm_address);
                 let to_starknet_address = test_address();
-                let to = Address { evm: to_evm_address, starknet: to_starknet_address };
+                let to = to_evm_address;
                 (to, true, tx.input(), Zero::zero(), [].span())
             },
             TxKind::Call(to) => {
                 // TODO: @beeinger
                 // let target_starknet_address = self.compute_starknet_address(to);
                 let target_starknet_address = test_address();
-                let to = Address { evm: to, starknet: target_starknet_address };
-                let code = env.state.get_account(to.evm).code;
+                let to = to;
+                let code = env.state.get_account(to).code;
                 (to, false, code, to, tx.input())
             },
         };
 
         let mut accessed_addresses: Set<EthAddress> = Default::default();
         accessed_addresses.add(env.coinbase);
-        accessed_addresses.add(to.evm);
-        accessed_addresses.add(env.origin.evm);
+        accessed_addresses.add(to);
+        accessed_addresses.add(env.origin);
         accessed_addresses.extend(eth_precompile_addresses().spanset());
 
         let mut accessed_storage_keys: Set<(EthAddress, u256)> = Default::default();
@@ -94,7 +93,7 @@ pub impl EVMImpl of EVMTrait {
 
     fn process_transaction(
         // ref self: KakarotCore::ContractState,
-        origin: Address, tx: Transaction, intrinsic_gas: u64,
+        origin: EthAddress, tx: Transaction, intrinsic_gas: u64,
     ) -> TransactionResult {
         // Charge the cost of intrinsic gas - which has been verified to be <= gas_limit.
         // TODO: @beeinger
@@ -106,7 +105,7 @@ pub impl EVMImpl of EVMTrait {
         let mut env = get_env(origin, gas_price);
 
         let (message, is_deploy_tx) = {
-            let mut sender_account = env.state.get_account(origin.evm);
+            let mut sender_account = env.state.get_account(origin);
             // Charge the intrinsic gas to the sender so that it's not available for the execution
             // of the transaction but don't trigger any actual transfer, as only the actual consumde
             // gas is charged at the end of the transaction
@@ -131,7 +130,7 @@ pub impl EVMImpl of EVMTrait {
         let mut summary = Self::process_message_call(message, env, is_deploy_tx);
 
         // Cancel the max_fee that was taken from the sender to prevent double charging
-        let mut sender_account = summary.state.get_account(origin.evm);
+        let mut sender_account = summary.state.get_account(origin);
         sender_account.set_balance(sender_account.balance() + max_fee.into());
         summary.state.set_account(sender_account);
 
@@ -187,7 +186,7 @@ pub impl EVMImpl of EVMTrait {
         message: Message, mut env: Environment, is_deploy_tx: bool,
     ) -> ExecutionSummary {
         let result = if is_deploy_tx {
-            let mut target_account = env.state.get_account(message.target.evm);
+            let mut target_account = env.state.get_account(message.target);
             // Check collision
             if target_account.has_code_or_nonce() {
                 return ExecutionSummary {
@@ -201,7 +200,7 @@ pub impl EVMImpl of EVMTrait {
 
             let mut result = Self::process_create_message(message, ref env);
             if result.is_success() {
-                result.return_data = message.target.evm.to_bytes().span();
+                result.return_data = message.target.to_bytes().span();
             }
             result
         } else {
@@ -224,7 +223,7 @@ pub impl EVMImpl of EVMTrait {
         // we only need to revert the changes made to the target account.  Take a
         // snapshot of the environment state so that we can revert if the
         let state_snapshot = env.state.clone();
-        let target_evm_address = message.target.evm;
+        let target_evm_address = message.target;
 
         //@dev: Adding a scope block around `target_account` to ensure that the same instance is not
         //being accessed after the state has been modified in `process_message`.
@@ -1081,7 +1080,7 @@ mod tests {
         assert_eq!(is_deploy_tx, true);
         assert_eq!(message.code, tx.input());
         assert_eq!(
-            message.target.evm, 0xf50541960eec6df5caa295adee1a1a95c3c3241c.try_into().unwrap(),
+            message.target, 0xf50541960eec6df5caa295adee1a1a95c3c3241c.try_into().unwrap(),
         ); // compute_contract_address('evm_address', 5);
         assert_eq!(message.code_address, Zero::zero());
         assert_eq!(message.data, [].span());
@@ -1101,7 +1100,7 @@ mod tests {
                 nonce: 5,
                 gas_price: 20000000000_u128, // 20 Gwei
                 gas_limit: 1000000_u64,
-                to: TxKind::Call(target_address.evm),
+                to: TxKind::Call(target_address),
                 value: 1000000000000000000_u256, // 1 ETH
                 input: array![0x12, 0x34, 0x56, 0x78].span() // Some calldata
             },
@@ -1112,8 +1111,8 @@ mod tests {
         );
 
         assert_eq!(is_deploy_tx, false);
-        assert_eq!(message.target.evm, target_address.evm);
-        assert_eq!(message.code_address.evm, target_address.evm);
+        assert_eq!(message.target, target_address);
+        assert_eq!(message.code_address, target_address);
         assert_eq!(message.code, sender_account.code);
         assert_eq!(message.data, tx.input());
         assert_eq!(message.gas_limit, tx.gas_limit());
