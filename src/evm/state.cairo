@@ -5,6 +5,7 @@ use core::num::traits::{OverflowingAdd, OverflowingSub};
 use core::poseidon::PoseidonTrait;
 use core::starknet::EthAddress;
 use core::starknet::storage_access::{StorageBaseAddress, storage_base_address_from_felt252};
+use hdp_cairo::HDP;
 use crate::evm::errors::{BALANCE_OVERFLOW, EVMError, ensure};
 use crate::evm::model::account::{Account, AccountTrait};
 use crate::evm::model::{Event, Transfer};
@@ -176,7 +177,7 @@ pub impl StateImpl of StateTrait {
     ///
     /// The value stored at the given address and key.
     #[inline(always)]
-    fn read_state(ref self: State, evm_address: EthAddress, key: u256) -> u256 {
+    fn read_state(ref self: State, hdp: Option<@HDP>, evm_address: EthAddress, key: u256) -> u256 {
         //? This makes sense, if the key does not exist in our storage in memory it means we need to
         //? get it with HDP, but it can exist because some EVM bytecode can influence the storage.
         let internal_key = compute_storage_key(evm_address, key);
@@ -185,7 +186,7 @@ pub impl StateImpl of StateTrait {
             Option::Some((_, _, value)) => { return value; },
             Option::None => {
                 let account = self.get_account(evm_address);
-                return fetch_original_storage(@account, key);
+                return fetch_original_storage(hdp, @account, key);
             },
         }
     }

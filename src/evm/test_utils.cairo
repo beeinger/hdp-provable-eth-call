@@ -252,6 +252,7 @@ pub fn preset_vm() -> VM {
     let environment = preset_environment();
     let return_data = [1, 2, 3].span();
     VM {
+        hdp: None,
         stack: Default::default(),
         memory: Default::default(),
         pc: 0,

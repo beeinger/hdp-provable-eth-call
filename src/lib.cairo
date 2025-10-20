@@ -74,7 +74,7 @@ pub mod executable {
             },
         };
 
-        let result = EVMImpl::process_message_call(message, env, false);
+        let result = EVMImpl::process_message_call(message, env, false, Some(@hdp));
         println!("Result: {:?}", result.return_data);
 
         if result

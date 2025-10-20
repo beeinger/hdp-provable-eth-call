@@ -1,3 +1,4 @@
+use hdp_cairo::HDP;
 use starknet::EthAddress;
 use crate::evm::model::AddressTrait;
 use crate::evm::model::account::{Account, AccountTrait};
@@ -12,8 +13,10 @@ use crate::evm::model::account::{Account, AccountTrait};
 /// # Returns
 ///
 /// A `Result` containing the value stored at the given key or an `EVMError` if there was an error.
-pub fn fetch_original_storage(account: @Account, key: u256) -> u256 {
-    let is_deployed = account.evm_address().is_deployed();
+pub fn fetch_original_storage(hdp: Option<@HDP>, account: @Account, key: u256) -> u256 {
+    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_original_storage"));
+
+    let is_deployed = account.evm_address().is_deployed(Option::Some(hdp));
     if is_deployed {
         // TODO: @herodotus [storage] HDP get storage here
         return 0;
@@ -26,7 +29,9 @@ pub fn fetch_original_storage(account: @Account, key: u256) -> u256 {
 /// # Returns
 ///
 /// `true` if the address is deployed, `false` otherwise.
-pub fn is_deployed(address: @EthAddress) -> bool {
+pub fn is_deployed(hdp: Option<@HDP>, address: @EthAddress) -> bool {
+    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: is_deployed"));
+
     // TODO: @herodotus [account] HDP check if account is deployed here.
     //? Just for reference, it used to be this code:
     // let mut kakarot_state = KakarotCore::unsafe_new_contract_state();
@@ -35,29 +40,39 @@ pub fn is_deployed(address: @EthAddress) -> bool {
     true
 }
 
-pub fn fetch_balance(address: @EthAddress) -> u256 {
+pub fn fetch_balance(hdp: Option<@HDP>, address: @EthAddress) -> u256 {
+    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_balance"));
+
     // TODO: @herodotus [account] HDP get account balance.
     0
 }
 
-pub fn fetch_nonce(address: @EthAddress) -> u64 {
+pub fn fetch_nonce(hdp: Option<@HDP>, address: @EthAddress) -> u64 {
+    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_nonce"));
+
     // TODO: @herodotus [account] HDP get account nonce.
     0
 }
 
-pub fn fetch_bytecode(address: @EthAddress) -> Span<u8> {
+pub fn fetch_bytecode(hdp: Option<@HDP>, address: @EthAddress) -> Span<u8> {
+    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_bytecode"));
+
     // TODO: @herodotus [account] HDP get account bytecode.
     [].span()
 }
 
-pub fn fetch_code_hash(address: @EthAddress) -> u256 {
+pub fn fetch_code_hash(hdp: Option<@HDP>, address: @EthAddress) -> u256 {
+    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_code_hash"));
+
     // TODO: @herodotus [account] HDP get account code hash.
     0
 }
 
 //? Found this note:
 //? Charge the cost of intrinsic gas - which has been verified to be <= gas_limit.
-pub fn get_base_fee() -> u128 {
+pub fn fetch_base_fee(hdp: Option<@HDP>) -> u128 {
+    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: get_base_fee"));
+
     // TODO: [env] get base fee?
     0
 }

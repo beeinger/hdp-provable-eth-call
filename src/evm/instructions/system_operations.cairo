@@ -499,7 +499,7 @@ mod tests {
         // Then
         assert!(!vm.is_error());
         assert!(!vm.is_running());
-        let storage_val = vm.env.state.read_state(contract_account.address, 0x42);
+        let storage_val = vm.env.state.read_state(None, contract_account.address, 0x42);
         assert_eq!(storage_val, 0x42);
     }
 
@@ -615,7 +615,7 @@ mod tests {
         assert!(!vm.is_error());
         assert!(!vm.is_running());
 
-        let storage_val = vm.env.state.read_state(vm.message.target, 0x42);
+        let storage_val = vm.env.state.read_state(None, vm.message.target, 0x42);
 
         assert_eq!(storage_val, 0x42);
     }
@@ -674,7 +674,7 @@ mod tests {
         assert!(!vm.is_error());
         assert!(!vm.is_running());
 
-        let storage_val = vm.env.state.read_state(vm.message.target, 0x42);
+        let storage_val = vm.env.state.read_state(None, vm.message.target, 0x42);
 
         assert_eq!(storage_val, 0x42);
     }

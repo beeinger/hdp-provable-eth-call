@@ -89,7 +89,7 @@ pub impl CallHelpersImpl of CallHelpers {
             accessed_storage_keys: self.accessed_storage_keys.clone().spanset(),
         };
 
-        let result = EVMTrait::process_message(message, ref self.env);
+        let result = EVMTrait::process_message(message, ref self.env, self.hdp);
         self.merge_child(@result);
 
         match result.status {

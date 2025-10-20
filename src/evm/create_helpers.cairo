@@ -127,7 +127,7 @@ pub impl CreateHelpersImpl of CreateHelpers {
             accessed_storage_keys: self.accessed_storage_keys.clone().spanset(),
         };
 
-        let result = EVMTrait::process_create_message(child_message, ref self.env);
+        let result = EVMTrait::process_create_message(child_message, ref self.env, self.hdp);
         self.merge_child(@result);
 
         match result.status {

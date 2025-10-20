@@ -3,6 +3,7 @@ pub mod vm;
 use account::{Account, AccountTrait};
 use core::num::traits::{CheckedSub, Zero};
 use core::starknet::{ContractAddress, EthAddress};
+use hdp_cairo::HDP;
 pub use vm::{VM, VMTrait};
 use crate::evm::errors::EVMError;
 use crate::evm::precompiles::{
@@ -230,8 +231,8 @@ pub impl AddressImpl of AddressTrait {
     /// # Returns
     ///
     /// `true` if the address is deployed, `false` otherwise.
-    fn is_deployed(self: @EthAddress) -> bool {
-        is_deployed(self)
+    fn is_deployed(self: @EthAddress, hdp: Option<@HDP>) -> bool {
+        is_deployed(hdp, self)
     }
 
     /// Checks if the address is a precompile for a call-family opcode.

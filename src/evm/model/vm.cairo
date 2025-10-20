@@ -2,6 +2,7 @@ use core::cmp::min;
 use core::dict::{Felt252Dict, Felt252DictTrait};
 use core::num::traits::{CheckedSub, SaturatingSub};
 use core::starknet::EthAddress;
+use hdp_cairo::HDP;
 use crate::evm::errors::EVMError;
 use crate::evm::memory::Memory;
 use crate::evm::model::{AccountTrait, Environment, ExecutionResult, ExecutionResultStatus, Message};
@@ -11,6 +12,7 @@ use crate::utils::traits::SpanDefault;
 
 #[derive(Default, Destruct)]
 pub struct VM {
+    pub hdp: Option<@HDP>,
     pub stack: Stack,
     pub memory: Memory,
     pub pc: usize,
@@ -30,8 +32,9 @@ pub struct VM {
 #[generate_trait]
 pub impl VMImpl of VMTrait {
     #[inline(always)]
-    fn new(message: Message, env: Environment) -> VM {
+    fn new(message: Message, env: Environment, hdp: Option<@HDP>) -> VM {
         VM {
+            hdp,
             stack: Default::default(),
             memory: Default::default(),
             pc: 0,
@@ -185,7 +188,7 @@ mod tests {
 
     #[test]
     fn test_vm_default() {
-        let mut vm = VMTrait::new(Default::default(), Default::default());
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
 
         assert!(vm.pc() == 0);
         assert!(vm.is_running());
@@ -196,7 +199,7 @@ mod tests {
 
     #[test]
     fn test_set_pc() {
-        let mut vm = VMTrait::new(Default::default(), Default::default());
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
 
         let new_pc = 42;
         vm.set_pc(new_pc);
@@ -206,7 +209,7 @@ mod tests {
 
     #[test]
     fn test_error() {
-        let mut vm = VMTrait::new(Default::default(), Default::default());
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
 
         vm.set_error();
 
@@ -215,7 +218,7 @@ mod tests {
 
     #[test]
     fn test_increment_gas_checked() {
-        let mut vm = VMTrait::new(Default::default(), Default::default());
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
 
         assert_eq!(vm.gas_left(), vm.message().gas_limit);
 
@@ -226,7 +229,7 @@ mod tests {
 
     #[test]
     fn test_set_stopped() {
-        let mut vm = VMTrait::new(Default::default(), Default::default());
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
 
         vm.stop();
 
@@ -271,7 +274,7 @@ mod tests {
 
     #[test]
     fn test_set_return() {
-        let mut vm = VMTrait::new(Default::default(), Default::default());
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
         vm.set_return_data([0x01, 0x02, 0x03].span());
         let return_data = vm.return_data();
         assert(return_data == [0x01, 0x02, 0x03].span(), 'wrong return data');
@@ -279,7 +282,7 @@ mod tests {
 
     #[test]
     fn test_return_data() {
-        let mut vm = VMTrait::new(Default::default(), Default::default());
+        let mut vm = VMTrait::new(Default::default(), Default::default(), None);
 
         let return_data = vm.return_data();
         assert(return_data.len() == 0, 'wrong length');
@@ -291,7 +294,7 @@ mod tests {
         let mut message: Message = Default::default();
         message.code = [0x60, 0x3, 0x56, 0x5b, 0x60, 0x9, 0x56, 0x60, 0x2, 0x5b, 0x60, 0x2].span();
 
-        let mut vm = VMTrait::new(message, Default::default());
+        let mut vm = VMTrait::new(message, Default::default(), None);
 
         assert!(vm.is_valid_jump(0x3), "expected jump to be valid");
         assert!(vm.is_valid_jump(0x9), "expected jump to be valid");
@@ -305,7 +308,7 @@ mod tests {
         let mut message: Message = Default::default();
         message.code = [0x60, 0x5B, 0x60, 0x00].span();
 
-        let mut vm = VMTrait::new(message, Default::default());
+        let mut vm = VMTrait::new(message, Default::default(), None);
         assert!(!vm.is_valid_jump(0x1), "expected false");
     }
 }

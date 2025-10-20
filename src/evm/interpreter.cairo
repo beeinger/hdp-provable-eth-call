@@ -2,6 +2,7 @@ use core::num::traits::{Bounded, Zero};
 // use core::ops::SnapshotDeref;
 use core::starknet::EthAddress;
 use core::starknet::storage::StoragePointerReadAccess;
+use hdp_cairo::HDP;
 use crate::evm::create_helpers::CreateHelpers;
 use crate::evm::errors::{EVMError, EVMErrorTrait};
 use crate::evm::instructions::{
@@ -26,7 +27,7 @@ use crate::utils::eth_transaction::eip2930::{AccessListItem, AccessListItemTrait
 use crate::utils::eth_transaction::transaction::{Transaction, TransactionTrait};
 use crate::utils::set::{Set, SetTrait};
 use crate::utils::traits::eth_address::EthAddressExTrait;
-use super::hdp_backend::get_base_fee;
+use super::hdp_backend::fetch_base_fee;
 use super::model::AddressTrait;
 use super::precompiles::Precompiles;
 
@@ -89,10 +90,10 @@ pub impl EVMImpl of EVMTrait {
 
     fn process_transaction(
         // ref self: KakarotCore::ContractState,
-        origin: EthAddress, tx: Transaction, intrinsic_gas: u64,
+        origin: EthAddress, tx: Transaction, intrinsic_gas: u64, hdp: Option<@HDP>,
     ) -> TransactionResult {
         // Charge the cost of intrinsic gas - which has been verified to be <= gas_limit.
-        let block_base_fee = get_base_fee();
+        let block_base_fee = fetch_base_fee(hdp);
         let gas_price = tx.effective_gas_price(Option::Some(block_base_fee.into()));
         let gas_left = tx.gas_limit() - intrinsic_gas;
         let max_fee = tx.gas_limit().into() * gas_price;
@@ -121,7 +122,7 @@ pub impl EVMImpl of EVMTrait {
             (message, is_deploy_tx)
         };
 
-        let mut summary = Self::process_message_call(message, env, is_deploy_tx);
+        let mut summary = Self::process_message_call(message, env, is_deploy_tx, hdp);
 
         // Cancel the max_fee that was taken from the sender to prevent double charging
         let mut sender_account = summary.state.get_account(origin);
@@ -177,7 +178,7 @@ pub impl EVMImpl of EVMTrait {
 
 
     fn process_message_call(
-        message: Message, mut env: Environment, is_deploy_tx: bool,
+        message: Message, mut env: Environment, is_deploy_tx: bool, hdp: Option<@HDP>,
     ) -> ExecutionSummary {
         let result = if is_deploy_tx {
             let mut target_account = env.state.get_account(message.target);
@@ -192,13 +193,13 @@ pub impl EVMImpl of EVMTrait {
                 };
             }
 
-            let mut result = Self::process_create_message(message, ref env);
+            let mut result = Self::process_create_message(message, ref env, hdp);
             if result.is_success() {
                 result.return_data = message.target.to_bytes().span();
             }
             result
         } else {
-            Self::process_message(message, ref env)
+            Self::process_message(message, ref env, hdp)
         };
 
         // No need to take snapshot of state, as the state is still empty at this point.
@@ -211,7 +212,9 @@ pub impl EVMImpl of EVMTrait {
         }
     }
 
-    fn process_create_message(message: Message, ref env: Environment) -> ExecutionResult {
+    fn process_create_message(
+        message: Message, ref env: Environment, hdp: Option<@HDP>,
+    ) -> ExecutionResult {
         //TODO(optimization) - Since the effects of executed code are
         //reverted in the `process_message` function already,
         // we only need to revert the changes made to the target account.  Take a
@@ -231,7 +234,7 @@ pub impl EVMImpl of EVMTrait {
             env.state.set_account(target_account);
         }
 
-        let mut result = Self::process_message(message, ref env);
+        let mut result = Self::process_message(message, ref env, hdp);
         if result.is_success() {
             // Write the return_data of the initcode
             // as the deployed contract's bytecode and charge gas
@@ -253,7 +256,9 @@ pub impl EVMImpl of EVMTrait {
         result
     }
 
-    fn process_message(message: Message, ref env: Environment) -> ExecutionResult {
+    fn process_message(
+        message: Message, ref env: Environment, hdp: Option<@HDP>,
+    ) -> ExecutionResult {
         if (message.depth > constants::STACK_MAX_DEPTH) {
             // Because the failure happens before any modification to warm address/storage,
             // we can pass an empty set
@@ -279,7 +284,7 @@ pub impl EVMImpl of EVMTrait {
         }
 
         // Instantiate a new VM using the message to process and the current environment.
-        let mut vm: VM = VMTrait::new(message, env);
+        let mut vm: VM = VMTrait::new(message, env, hdp);
 
         // Decode and execute the current opcode.
         // until we have processed all opcodes or until we have stopped.
