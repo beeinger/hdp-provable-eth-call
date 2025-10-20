@@ -57,7 +57,7 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 
 ---
 
-This project makes use of code adapted from [**Kakarot**](https://github.com/kkrt-labs/kakarot-ssj) (@kkrt-labs/kakarot-ssj) under the [MIT License](https://github.com/kkrt-labs/kakarot-ssj/blob/main/LICENSE).
+This project makes use of code adapted from [**Kakarot**](https://github.com/kkrt-labs) [(@kkrt-labs/kakarot-ssj)](https://github.com/kkrt-labs/kakarot-ssj) under the [MIT License](https://github.com/kkrt-labs/kakarot-ssj/blob/main/LICENSE).
 
 Thanks for all the hard work guys 🙏
 
