@@ -12,9 +12,9 @@ pub fn get_env(
     Environment {
         origin,
         gas_price,
-        // --------------------
-        // TODO: @herodotus [misc] random stuff in here for now
         chain_id: (*time_and_space.chain_id).try_into().unwrap(),
+        // --------------------
+        // TODO: @herodotus [prevrundao] random stuff in here for now
         prevrandao: 0x2137,
         // --------------------
         block_number: fetch_number(hdp, time_and_space),

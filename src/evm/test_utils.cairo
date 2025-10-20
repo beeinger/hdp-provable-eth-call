@@ -18,7 +18,7 @@ pub fn account_contract() -> ClassHash {
 }
 
 pub fn test_address() -> ContractAddress {
-    // TODO: @herodotus [misc] probably delete later, put Herodotus Satellite on Starknet address
+    //? Only for testing purposes, put Herodotus Satellite on Starknet address
     0x01ba7d4b5707f8878c22fb335763abfc26c2ae157c434d597f6416fe6a79bf2e.try_into().unwrap()
 }
 

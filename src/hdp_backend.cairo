@@ -49,13 +49,6 @@ pub fn fetch_original_storage(
 pub fn is_deployed(hdp: Option<@HDP>, time_and_space: @TimeAndSpace, address: @EthAddress) -> bool {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: is_deployed"));
 
-    // TODO: @herodotus [account] HDP check if account is deployed here.
-    //? Just for reference, it used to be this code:
-    // let mut kakarot_state = KakarotCore::unsafe_new_contract_state();
-    // let address = kakarot_state.address_registry(*self);
-    // return address.is_non_zero();
-
-    // TODO: @herodotus [context] get chain id and block number from context.
     let account_key = AccountKey {
         chain_id: *time_and_space.chain_id,
         block_number: *time_and_space.block_number,
@@ -72,7 +65,6 @@ pub fn fetch_balance(
 ) -> u256 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_balance"));
 
-    // TODO: @herodotus [context] get chain id and block number from context.
     let account_key = AccountKey {
         chain_id: *time_and_space.chain_id,
         block_number: *time_and_space.block_number,
@@ -84,7 +76,6 @@ pub fn fetch_balance(
 pub fn fetch_nonce(hdp: Option<@HDP>, time_and_space: @TimeAndSpace, address: @EthAddress) -> u64 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_nonce"));
 
-    // TODO: @herodotus [context] get chain id and block number from context.
     let account_key = AccountKey {
         chain_id: *time_and_space.chain_id,
         block_number: *time_and_space.block_number,
@@ -112,7 +103,6 @@ pub fn fetch_code_hash(
 ) -> u256 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_code_hash"));
 
-    // TODO: @herodotus [context] get chain id and block number from context.
     let account_key = AccountKey {
         chain_id: *time_and_space.chain_id,
         block_number: *time_and_space.block_number,
@@ -124,7 +114,6 @@ pub fn fetch_code_hash(
 pub fn fetch_number(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> u64 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_number"));
 
-    // TODO: @herodotus [context] get chain id and block number from context.
     let header_key = HeaderKey {
         chain_id: *time_and_space.chain_id, block_number: *time_and_space.block_number,
     };
@@ -138,7 +127,6 @@ pub fn fetch_number(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> u64 {
 pub fn fetch_gas_limit(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> u64 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_gas_limit"));
 
-    // TODO: @herodotus [context] get chain id and block number from context.
     let header_key = HeaderKey {
         chain_id: *time_and_space.chain_id, block_number: *time_and_space.block_number,
     };
@@ -152,7 +140,6 @@ pub fn fetch_gas_limit(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> u64 
 pub fn fetch_timestamp(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> u64 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_timestamp"));
 
-    // TODO: @herodotus [context] get chain id and block number from context.
     let header_key = HeaderKey {
         chain_id: *time_and_space.chain_id, block_number: *time_and_space.block_number,
     };
@@ -166,7 +153,6 @@ pub fn fetch_timestamp(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> u64 
 pub fn fetch_coinbase(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> EthAddress {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_coinbase"));
 
-    // TODO: @herodotus [context] get chain id and block number from context.
     let header_key = HeaderKey {
         chain_id: *time_and_space.chain_id, block_number: *time_and_space.block_number,
     };
@@ -180,7 +166,6 @@ pub fn fetch_coinbase(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> EthAd
 pub fn fetch_base_fee(hdp: Option<@HDP>, time_and_space: @TimeAndSpace) -> u64 {
     let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: get_base_fee"));
 
-    // TODO: @herodotus [context] get chain id and block number from context.
     let header_key = HeaderKey {
         chain_id: *time_and_space.chain_id, block_number: *time_and_space.block_number,
     };
