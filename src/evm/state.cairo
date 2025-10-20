@@ -134,10 +134,13 @@ pub impl StateImpl of StateTrait {
     ///
     /// The `Account` associated with the given EVM address.
     fn get_account(ref self: State, evm_address: EthAddress) -> Account {
+        //? This also has to stay, and we only fetch the unaccessed account from HDP, because
+        //? someone can spend money within transaction etc? Idk if we need this, TBD.
         let maybe_account = self.accounts.read(evm_address.into());
         match maybe_account {
             Option::Some(acc) => { return acc; },
             Option::None => {
+                // TODO: HDP inside fetch_or_create
                 let account = AccountTrait::fetch_or_create(evm_address);
                 self.accounts.write(evm_address.into(), account);
                 return account;
@@ -171,6 +174,8 @@ pub impl StateImpl of StateTrait {
     /// The value stored at the given address and key.
     #[inline(always)]
     fn read_state(ref self: State, evm_address: EthAddress, key: u256) -> u256 {
+        //? This makes sense, if the key does not exist in our storage in memory it means we need to
+        //? get it with HDP, but it can exist because some EVM bytecode can influence the storage.
         let internal_key = compute_storage_key(evm_address, key);
         let maybe_entry = self.accounts_storage.read(internal_key);
         match maybe_entry {

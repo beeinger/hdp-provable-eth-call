@@ -132,6 +132,8 @@ pub impl AccountImpl of AccountTrait {
         //     return Option::None;
         // }
 
+        // TODO: HDP here
+
         panic!("fetch account from starknet not implemented");
 
         let starknet_address = test_address();
