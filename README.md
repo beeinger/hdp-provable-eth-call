@@ -38,12 +38,21 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 #### Next Goals:
 
 - [x] execute simple bytecode (DONE! run ERC20 decimals())
-- [ ] execute more complex bytecode accessing storage slots
+- [x] execute more complex bytecode accessing storage slots
+  - [ ] needs `fusaka compatibility PR` on HDP for the sound run to pass
 - [ ] execute even more complex bytecode - a proxy running the code of another contract
+  - [ ] needs `account_get_bytecode PR` on HDP to be possible
 
 #### TODOs:
 
 > ℹ️ Search the code for `TODO: @herodotus [<subject>]`
+
+- [ ] Cleanup lib.cairo
+
+  - [ ] split into functions
+  - [ ] generic function for running calldata and expecting a result
+  - [ ] file with testing setup - a list of all calldata + expected result pairs to not have them hardcoded in lib.cairo
+  - [ ] run all methods on the HPECT1 contract - comment out the ones using calls to other contracts or precompiles we dont support
 
 - [x] implement everything in [hdp-backend.cairo](./src/evm/hdp_backend.cairo)
 
@@ -62,12 +71,21 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
     - [ ] Only field missing is `prevrundao`
     - [ ] Better setup is places in `new_main` but needs HDP to support bytecode first.
 
-- [ ] Create a new folder `solidity` for testing contracts to use
-  - [ ] basic function, just simple bytecode
-  - [ ] more advanced functions
-    - [ ] using storage slots
-    - [ ] using precompiles
-  - [ ] proxy contract
+- [x] Create a new folder `solidity` for testing contracts to use
+  - [x] basic function, just simple bytecode
+  - [x] more advanced functions
+    - [x] using storage slots
+    - [x] using precompiles
+  - [x] proxy contract
+
+#### HDP requested features
+
+- [ ] `account_get_bytecode`
+- [ ] `fusaka fork` compatibility
+- [ ] `account_is_deployed`
+- [ ] `header_get_prevrandao`
+- [ ] `secp256r1` support
+- [ ] `EC ops` support
 
 ---
 
