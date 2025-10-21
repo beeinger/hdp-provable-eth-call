@@ -1,7 +1,7 @@
 use core::keccak::cairo_keccak;
 use crate::utils::bytecode::ByteCodeLeWords;
 
-pub fn verify_codehash(byteCode: ByteCodeLeWords, codeHash: u256) -> u8 {
+pub fn verify_bytecode(byteCode: ByteCodeLeWords, codeHash: u256) -> u8 {
     println!("Received code hash: 0x{:x}", codeHash);
     let mut words64bit = byteCode.words64bit;
 

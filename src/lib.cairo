@@ -7,7 +7,7 @@ pub mod utils;
 #[starknet::contract]
 pub mod executable {
     use hdp_cairo::HDP;
-    use crate::eth_call_utils::bytecode::verify_codehash;
+    use crate::eth_call_utils::bytecode::verify_bytecode;
     use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
     use crate::evm::model::{ExecutionResultStatus, Message};
@@ -28,7 +28,7 @@ pub mod executable {
     ) -> u8 {
         //? byteCode has to be cloned because cairo_keccak modifies the array
 
-        verify_codehash(byteCode.clone(), codeHash);
+        verify_bytecode(byteCode.clone(), codeHash);
 
         let originial_bytecode = byteCode.get_original();
 
