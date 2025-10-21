@@ -84,8 +84,7 @@ function buildInputsFromArgs(args: any[]): Input[] {
   return inputs;
 }
 
-async function readRawArgs(scriptDir: string): Promise<any[]> {
-  const rawArgsPath = `${scriptDir}/../raw_input.json`;
+async function readRawArgs(rawArgsPath: string): Promise<any[]> {
   return JSON.parse(await Bun.file(rawArgsPath).text());
 }
 
@@ -95,7 +94,16 @@ async function writeInputsFile(inputs: Input[]): Promise<void> {
 
 async function main() {
   const scriptDir = import.meta.dir;
-  const args = await readRawArgs(scriptDir);
+  const [, , rawInputArg] = Bun.argv;
+  if (!rawInputArg || rawInputArg.length === 0) {
+    throw new Error("Provide a path to the raw input JSON file as the first argument.");
+  }
+
+  const resolvedRawArgsPath = rawInputArg.startsWith("/")
+    ? rawInputArg
+    : `${scriptDir}/../test_contracts/${rawInputArg}.json`;
+
+  const args = await readRawArgs(resolvedRawArgsPath);
   const inputs = buildInputsFromArgs(args);
 
   //? Helpful for writing tests in cairo
