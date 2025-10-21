@@ -1,3 +1,4 @@
+pub mod eth_call_utils;
 pub mod evm;
 pub mod hdp_backend;
 pub mod utils;
@@ -5,9 +6,8 @@ pub mod utils;
 
 #[starknet::contract]
 pub mod executable {
-    use core::keccak::cairo_keccak;
-    use core::num::traits::Zero;
     use hdp_cairo::HDP;
+    use crate::eth_call_utils::bytecode::verify_codehash;
     use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
     use crate::evm::model::{ExecutionResultStatus, Message};
@@ -26,7 +26,6 @@ pub mod executable {
     pub fn main(
         ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCodeLeWords,
     ) -> u8 {
-
         //? byteCode has to be cloned because cairo_keccak modifies the array
 
         verify_codehash(byteCode.clone(), codeHash);
@@ -135,23 +134,4 @@ pub mod executable {
         println!("Result matches");
         return 1;
     }
-    
-    fn verify_codehash( mut byteCode: ByteCodeLeWords, codeHash: u256) -> u8 {
-
-        println!("Received code hash: 0x{:x}", codeHash);
-
-        let computedCodeHash = cairo_keccak(
-             ref byteCode.words64bit, byteCode.lastInputWord, byteCode.lastInputNumBytes,
-        );
-        println!("Computed code hash: 0x{:x}", computedCodeHash);
-
-        if computedCodeHash == codeHash {
-            println!("Code hash matches");
-            return 1;
-        } else {
-            println!("Code hash does not match");
-            return 0;
-        }
-    }
-
 }
