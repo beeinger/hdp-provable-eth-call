@@ -99,9 +99,7 @@ async function main() {
     throw new Error("Provide a path to the raw input JSON file as the first argument.");
   }
 
-  const resolvedRawArgsPath = rawInputArg.startsWith("/")
-    ? rawInputArg
-    : `${scriptDir}/../test_contracts/${rawInputArg}.json`;
+  const resolvedRawArgsPath = `${scriptDir}/../test_contracts/${rawInputArg}.json`;
 
   const args = await readRawArgs(resolvedRawArgsPath);
   const inputs = buildInputsFromArgs(args);
