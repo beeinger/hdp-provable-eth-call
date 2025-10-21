@@ -21,24 +21,15 @@ pub mod executable {
     #[storage]
     struct Storage {}
 
+
     #[external(v0)]
     pub fn main(
         ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCodeLeWords,
     ) -> u8 {
-        println!("Received code hash: 0x{:x}", codeHash);
-        //? byteCode has to be cloned because cairo_keccak modifies the array
-        let mut byteCodeCopy = byteCode.clone();
-        let computedCodeHash = cairo_keccak(
-            ref byteCodeCopy.words64bit, byteCodeCopy.lastInputWord, byteCodeCopy.lastInputNumBytes,
-        );
-        println!("Computed code hash: 0x{:x}", computedCodeHash);
 
-        if computedCodeHash == codeHash {
-            println!("Code hash matches");
-        } else {
-            println!("Code hash does not match");
-            return 0;
-        }
+        //? byteCode has to be cloned because cairo_keccak modifies the array
+
+        verify_codehash(byteCode.clone(), codeHash);
 
         let originial_bytecode = byteCode.get_original();
 
@@ -144,4 +135,23 @@ pub mod executable {
         println!("Result matches");
         return 1;
     }
+    
+    fn verify_codehash( mut byteCode: ByteCodeLeWords, codeHash: u256) -> u8 {
+
+        println!("Received code hash: 0x{:x}", codeHash);
+
+        let computedCodeHash = cairo_keccak(
+             ref byteCode.words64bit, byteCode.lastInputWord, byteCode.lastInputNumBytes,
+        );
+        println!("Computed code hash: 0x{:x}", computedCodeHash);
+
+        if computedCodeHash == codeHash {
+            println!("Code hash matches");
+            return 1;
+        } else {
+            println!("Code hash does not match");
+            return 0;
+        }
+    }
+
 }
