@@ -10,7 +10,7 @@ pub mod executable {
     use hdp_cairo::HDP;
     use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
-    use crate::evm::model::Message;
+    use crate::evm::model::{ExecutionResultStatus, Message};
     use crate::hdp_backend::TimeAndSpace;
     use crate::utils::bytecode::{ByteCodeLeWords, OriginalByteCode};
     use crate::utils::env::get_env;
@@ -42,7 +42,7 @@ pub mod executable {
 
         let originial_bytecode = byteCode.get_original();
 
-        let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9457340 };
+        let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9455096 };
 
         // getStorageNumber() - 0x20478723
         let calldata: Span<u8> = [0x20, 0x47, 0x87, 0x23].span();
@@ -72,6 +72,12 @@ pub mod executable {
         let result = EVMImpl::process_message_call(
             message, env, false, Some(@hdp), @time_and_space,
         );
+
+        if result.status != ExecutionResultStatus::Success {
+            println!("Result status is not Success, it is {:?}", result.status);
+            return 0;
+        }
+
         println!("Result: {:?}", result.return_data);
 
         // 2137 - 0x0859
@@ -82,7 +88,7 @@ pub mod executable {
             .span();
 
         if result.return_data != correct_result {
-            println!("Result does not match, should be 18");
+            println!("Result does not match, should be 2137");
             return 0;
         }
 
