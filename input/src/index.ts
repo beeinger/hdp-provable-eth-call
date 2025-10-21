@@ -276,13 +276,45 @@ async function loadContractData(
   return [codeHash, bytecode];
 }
 
+function showHelp() {
+  console.log(`
+Usage: bun run index.ts <command> [options]
+
+Commands:
+  -f <file_path>     Load raw input from test_contracts directory
+  -c <contract_name> Load contract data by name (HPECT1, HPECT2, HPECT3)
+  -a <address>       Load contract data by Ethereum address
+  -h, --help         Show this help message
+
+Options:
+  --no-cache         Bypass cache and fetch fresh data from RPC
+
+Examples:
+  bun run index.ts -f HPECT1
+  bun run index.ts -c HPECT1
+  bun run index.ts -a 0xe5d5bc62cf36fb14efd8c32238c5d39b15bbffd1
+  bun run index.ts -c HPECT1 --no-cache
+  bun run index.ts -a 0x1234... --no-cache
+
+Cache:
+  Contract data is cached in the 'cache' directory for faster subsequent runs.
+  Use --no-cache to force fresh data from the blockchain.
+`);
+}
+
 async function main() {
   const args = Bun.argv.slice(2);
 
+  // Check for help flag
+  if (args.length === 0 || args.includes("-h") || args.includes("--help")) {
+    showHelp();
+    return;
+  }
+
   if (args.length < 2) {
-    throw new Error(
-      "Usage: bun run index.ts -f <file_path> OR bun run index.ts -c <contract_name> OR bun run index.ts -a <address> [--no-cache]"
-    );
+    console.error("Error: Missing required arguments");
+    showHelp();
+    process.exit(1);
   }
 
   // Check for --no-cache flag
@@ -290,9 +322,11 @@ async function main() {
   const filteredArgs = args.filter((arg) => arg !== "--no-cache");
 
   if (filteredArgs.length < 2) {
-    throw new Error(
-      "Usage: bun run index.ts -f <file_path> OR bun run index.ts -c <contract_name> OR bun run index.ts -a <address> [--no-cache]"
+    console.error(
+      "Error: Missing required arguments after filtering --no-cache"
     );
+    showHelp();
+    process.exit(1);
   }
 
   const [flag, value] = filteredArgs;
@@ -305,23 +339,29 @@ async function main() {
     // Contract mode: load from deployment data
     const allowedContracts = ["HPECT1", "HPECT2", "HPECT3"];
     if (!allowedContracts.includes(value)) {
-      throw new Error(
-        `Contract name must be one of: ${allowedContracts.join(", ")}`
+      console.error(
+        `Error: Contract name must be one of: ${allowedContracts.join(", ")}`
       );
+      showHelp();
+      process.exit(1);
     }
     rawArgs = await loadContractData(value, !noCache);
   } else if (flag === "-a") {
     // Address mode: load from arbitrary contract address
     if (!value.startsWith("0x") || value.length !== 42) {
-      throw new Error(
-        "Invalid address format. Must be a valid Ethereum address (0x...)"
+      console.error(
+        "Error: Invalid address format. Must be a valid Ethereum address (0x...)"
       );
+      showHelp();
+      process.exit(1);
     }
     rawArgs = await loadContractDataByAddress(value, !noCache);
   } else {
-    throw new Error(
-      "Invalid flag. Use -f for file path, -c for contract name, or -a for address"
+    console.error(
+      `Error: Invalid flag '${flag}'. Use -f for file path, -c for contract name, or -a for address`
     );
+    showHelp();
+    process.exit(1);
   }
 
   const inputs = buildInputsFromArgs(rawArgs);
