@@ -96,7 +96,9 @@ async function main() {
   const scriptDir = import.meta.dir;
   const [, , rawInputArg] = Bun.argv;
   if (!rawInputArg || rawInputArg.length === 0) {
-    throw new Error("Provide a path to the raw input JSON file as the first argument.");
+    throw new Error(
+      "Provide a path to the raw input JSON file as the first argument."
+    );
   }
 
   const resolvedRawArgsPath = `${scriptDir}/../test_contracts/${rawInputArg}.json`;
