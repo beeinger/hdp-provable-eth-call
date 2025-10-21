@@ -42,17 +42,15 @@ pub mod executable {
 
         let originial_bytecode = byteCode.get_original();
 
-        let time_and_space = TimeAndSpace { chain_id: 1, block_number: 23600000 };
+        let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9457340 };
 
-        // decimals()
-        let calldata: Span<u8> = [0x31, 0x3c, 0xe5, 0x67].span();
+        // getStorageNumber() - 0x20478723
+        let calldata: Span<u8> = [0x20, 0x47, 0x87, 0x23].span();
 
-        // beeinger.eth on L1 ETH:
+        // beeinger.eth on Sepolia:
         let sender = 0x946F7Cc10FB0A6DC70860B6cF55Ef2C722cC7e1a.try_into().unwrap();
-        // ARB ERC20 token on L1 ETH:
-        let target = 0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1.try_into().unwrap();
-        // Resolved proxy address
-        let code_address = 0xAD0C361Ef902A7D9851Ca7DcC85535DA2d3C6Fc7.try_into().unwrap();
+        // HPECT1 testing contract address on Sepolia:
+        let target = 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap();
 
         let message = Message {
             caller: sender,
@@ -60,7 +58,7 @@ pub mod executable {
             gas_limit: 50_000_000,
             data: calldata,
             code: originial_bytecode.bytes,
-            code_address: code_address,
+            code_address: target,
             value: 0,
             should_transfer_value: false,
             depth: 0,
@@ -76,12 +74,14 @@ pub mod executable {
         );
         println!("Result: {:?}", result.return_data);
 
-        if result
-            .return_data != [
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 18,
-            ]
-            .span() {
+        // 2137 - 0x0859
+        let correct_result = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0x08, 0x59,
+        ]
+            .span();
+
+        if result.return_data != correct_result {
             println!("Result does not match, should be 18");
             return 0;
         }
@@ -105,7 +105,7 @@ pub mod executable {
 
         let tx = Transaction::Eip1559(
             TxEip1559 {
-                chain_id: 1,
+                chain_id: time_and_space.chain_id.try_into().unwrap(),
                 nonce: 0,
                 gas_limit: 50_000_000,
                 max_fee_per_gas: 1_000_000_000,
