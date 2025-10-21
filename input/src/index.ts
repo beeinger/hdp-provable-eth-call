@@ -1,3 +1,6 @@
+import { existsSync, mkdirSync } from "fs";
+import { join } from "path";
+
 interface Input {
   visibility: "public";
   value: string;
@@ -84,7 +87,7 @@ function buildInputsFromArgs(args: any[]): Input[] {
   return inputs;
 }
 
-async function readRawArgs(rawArgsPath: string): Promise<any[]> {
+async function readRawArgs(rawArgsPath: string): Promise<[string, string]> {
   return JSON.parse(await Bun.file(rawArgsPath).text());
 }
 
@@ -92,19 +95,236 @@ async function writeInputsFile(inputs: Input[]): Promise<void> {
   await Bun.write("./input.json", JSON.stringify(inputs));
 }
 
-async function main() {
+function getCacheDir(): string {
   const scriptDir = import.meta.dir;
-  const [, , rawInputArg] = Bun.argv;
-  if (!rawInputArg || rawInputArg.length === 0) {
+  const cacheDir = join(scriptDir, "../cache");
+  if (!existsSync(cacheDir)) {
+    mkdirSync(cacheDir, { recursive: true });
+  }
+  return cacheDir;
+}
+
+function getCachePath(contractName: string): string {
+  return join(getCacheDir(), `${contractName.toLowerCase()}.json`);
+}
+
+async function loadFromCache(
+  contractName: string
+): Promise<[string, string] | null> {
+  const cachePath = getCachePath(contractName);
+  if (!existsSync(cachePath)) {
+    return null;
+  }
+
+  try {
+    const cachedData = JSON.parse(await Bun.file(cachePath).text());
+    return [cachedData.codeHash, cachedData.bytecode];
+  } catch (error) {
+    console.warn(`Failed to load cache for ${contractName}:`, error);
+    return null;
+  }
+}
+
+async function saveToCache(
+  contractName: string,
+  codeHash: string,
+  bytecode: string
+): Promise<void> {
+  const cachePath = getCachePath(contractName);
+  const cacheData = {
+    codeHash,
+    bytecode,
+    timestamp: new Date().toISOString(),
+  };
+
+  await Bun.write(cachePath, JSON.stringify(cacheData, null, 2));
+}
+
+async function getRpcUrl(): Promise<string> {
+  const scriptDir = import.meta.dir;
+  const envPath = `${scriptDir}/../../solidity/.env`;
+  const envContent = await Bun.file(envPath).text();
+  const envLines = envContent.split("\n");
+
+  for (const line of envLines) {
+    if (line.startsWith("RPC_URL=")) {
+      return line.split("=")[1].trim();
+    }
+  }
+
+  throw new Error("RPC_URL not found in solidity/.env");
+}
+
+async function fetchContractData(
+  contractAddress: string
+): Promise<[string, string]> {
+  const rpcUrl = await getRpcUrl();
+
+  // Make RPC calls to get codeHash and bytecode
+  const getProofResponse = await fetch(rpcUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: "eth_getProof",
+      params: [contractAddress, [], "latest"],
+      id: 1,
+    }),
+  });
+
+  const getCodeResponse = await fetch(rpcUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: "eth_getCode",
+      params: [contractAddress, "latest"],
+      id: 2,
+    }),
+  });
+
+  const proofData = await getProofResponse.json();
+  const codeData = await getCodeResponse.json();
+
+  if (proofData.error) {
+    throw new Error(`eth_getProof failed: ${proofData.error.message}`);
+  }
+
+  if (codeData.error) {
+    throw new Error(`eth_getCode failed: ${codeData.error.message}`);
+  }
+
+  const codeHash = proofData.result.codeHash;
+  const bytecode = codeData.result;
+
+  return [codeHash, bytecode];
+}
+
+async function loadContractDataByAddress(
+  contractAddress: string,
+  useCache: boolean = true
+): Promise<[string, string]> {
+  const cacheKey = `address_${contractAddress.toLowerCase()}`;
+
+  // Try to load from cache first if caching is enabled
+  if (useCache) {
+    const cachedData = await loadFromCache(cacheKey);
+    if (cachedData) {
+      console.log(`Using cached data for address ${contractAddress}`);
+      return cachedData;
+    }
+  } else {
+    console.log(`Not using cache for address ${contractAddress}`);
+  }
+
+  const [codeHash, bytecode] = await fetchContractData(contractAddress);
+
+  // Save to cache if caching is enabled
+  if (useCache) {
+    await saveToCache(cacheKey, codeHash, bytecode);
+    console.log(`Cached data for address ${contractAddress}`);
+  }
+
+  return [codeHash, bytecode];
+}
+
+async function loadContractData(
+  contractName: string,
+  useCache: boolean = true
+): Promise<[string, string]> {
+  // Try to load from cache first if caching is enabled
+  if (useCache) {
+    const cachedData = await loadFromCache(contractName);
+    if (cachedData) {
+      console.log(`Using cached data for ${contractName}`);
+      return cachedData;
+    }
+  } else {
+    console.log(`Not using cache for ${contractName}`);
+  }
+
+  // Get contract address from env file
+  const scriptDir = import.meta.dir;
+  const envPath = `${scriptDir}/../../solidity/.env`;
+  const envContent = await Bun.file(envPath).text();
+  const envLines = envContent.split("\n");
+
+  let contractAddress = "";
+  for (const line of envLines) {
+    if (line.startsWith(`${contractName}_ADDRESS=`)) {
+      contractAddress = line.split("=")[1].trim();
+      break;
+    }
+  }
+
+  if (!contractAddress) {
+    throw new Error(`${contractName}_ADDRESS not found in solidity/.env`);
+  }
+
+  const [codeHash, bytecode] = await fetchContractData(contractAddress);
+
+  // Save to cache if caching is enabled
+  if (useCache) {
+    await saveToCache(contractName, codeHash, bytecode);
+    console.log(`Cached data for ${contractName}`);
+  }
+
+  return [codeHash, bytecode];
+}
+
+async function main() {
+  const args = Bun.argv.slice(2);
+
+  if (args.length < 2) {
     throw new Error(
-      "Provide a path to the raw input JSON file as the first argument."
+      "Usage: bun run index.ts -f <file_path> OR bun run index.ts -c <contract_name> OR bun run index.ts -a <address> [--no-cache]"
     );
   }
 
-  const resolvedRawArgsPath = `${scriptDir}/../test_contracts/${rawInputArg}.json`;
+  // Check for --no-cache flag
+  const noCache = args.includes("--no-cache");
+  const filteredArgs = args.filter((arg) => arg !== "--no-cache");
 
-  const args = await readRawArgs(resolvedRawArgsPath);
-  const inputs = buildInputsFromArgs(args);
+  if (filteredArgs.length < 2) {
+    throw new Error(
+      "Usage: bun run index.ts -f <file_path> OR bun run index.ts -c <contract_name> OR bun run index.ts -a <address> [--no-cache]"
+    );
+  }
+
+  const [flag, value] = filteredArgs;
+  let rawArgs: [string, string];
+
+  if (flag === "-f") {
+    // File mode: load from test_contracts directory
+    rawArgs = await readRawArgs(value);
+  } else if (flag === "-c") {
+    // Contract mode: load from deployment data
+    const allowedContracts = ["HPECT1", "HPECT2", "HPECT3"];
+    if (!allowedContracts.includes(value)) {
+      throw new Error(
+        `Contract name must be one of: ${allowedContracts.join(", ")}`
+      );
+    }
+    rawArgs = await loadContractData(value, !noCache);
+  } else if (flag === "-a") {
+    // Address mode: load from arbitrary contract address
+    if (!value.startsWith("0x") || value.length !== 42) {
+      throw new Error(
+        "Invalid address format. Must be a valid Ethereum address (0x...)"
+      );
+    }
+    rawArgs = await loadContractDataByAddress(value, !noCache);
+  } else {
+    throw new Error(
+      "Invalid flag. Use -f for file path, -c for contract name, or -a for address"
+    );
+  }
+
+  const inputs = buildInputsFromArgs(rawArgs);
 
   //? Helpful for writing tests in cairo
   // console.log("Inputs: ");
