@@ -29,61 +29,7 @@ pub mod executable {
         //? byteCode has to be cloned because cairo_keccak modifies the array
 
         verify_bytecode(byteCode.clone(), codeHash);
-
-        let originial_bytecode = byteCode.get_original();
-
-        let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9455096 };
-
-        // getStorageNumber() - 0x20478723
-        let calldata: Span<u8> = [0x20, 0x47, 0x87, 0x23].span();
-
-        // beeinger.eth on Sepolia:
-        let sender = 0x946F7Cc10FB0A6DC70860B6cF55Ef2C722cC7e1a.try_into().unwrap();
-        // HPECT1 testing contract address on Sepolia:
-        let target = 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap();
-
-        let message = Message {
-            caller: sender,
-            target: target,
-            gas_limit: 50_000_000,
-            data: calldata,
-            code: originial_bytecode.bytes,
-            code_address: target,
-            value: 0,
-            should_transfer_value: false,
-            depth: 0,
-            read_only: false,
-            accessed_addresses: Default::default(),
-            accessed_storage_keys: Default::default(),
-        };
-
-        let env = get_env(sender, 0, Some(@hdp), @time_and_space);
-
-        let result = EVMImpl::process_message_call(
-            message, env, false, Some(@hdp), @time_and_space,
-        );
-
-        if result.status != ExecutionResultStatus::Success {
-            println!("Result status is not Success, it is {:?}", result.status);
-            return 0;
-        }
-
-        println!("Result: {:?}", result.return_data);
-
-        // 2137 - 0x0859
-        let correct_result = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0x08, 0x59,
-        ]
-            .span();
-
-        if result.return_data != correct_result {
-            println!("Result does not match, should be 2137");
-            return 0;
-        }
-
-        println!("Result matches");
-        return 1;
+        0;
     }
 
     ///? Usable after HDP bytecode support is here,
@@ -134,4 +80,71 @@ pub mod executable {
         println!("Result matches");
         return 1;
     }
+
+    fn execute_message_call(
+        ref self: ContractState,
+        hdp: HDP, 
+        codeHash: u256,
+        bytecode: ByteCodeLeWords,
+        calldata: Span<u8>,
+        time_and_space: TimeAndSpace,
+        correct_result: 
+
+    ) - > u8 {
+
+        //let originial_bytecode = ;
+
+        //let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9455096 };
+
+        // getStorageNumber() - 0x20478723
+        //  let calldata: Span<u8> = [0x20, 0x47, 0x87, 0x23].span();
+
+        // beeinger.eth on Sepolia:
+        let sender = 0x946F7Cc10FB0A6DC70860B6cF55Ef2C722cC7e1a.try_into().unwrap();
+        // HPECT1 testing contract address on Sepolia:
+        let target = 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap();
+
+        let message = Message {
+            caller: sender,
+            target: target,
+            gas_limit: 50_000_000,
+            data: calldata,
+            code: byteCode.get_original().bytes,
+            code_address: target,
+            value: 0,
+            should_transfer_value: false,
+            depth: 0,
+            read_only: false,
+            accessed_addresses: Default::default(),
+            accessed_storage_keys: Default::default(),
+        };
+
+        let env = get_env(sender, 0, Some(@hdp), @time_and_space);
+
+        let result = EVMImpl::process_message_call(
+            message, env, false, Some(@hdp), @time_and_space,
+        );
+
+        if result.status != ExecutionResultStatus::Success {
+            println!("Result status is not Success, it is {:?}", result.status);
+            return 0;
+        }
+
+        println!("Result: {:?}", result.return_data);
+
+        // 2137 - 0x0859
+        let correct_result = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0x08, 0x59,
+        ]
+            .span();
+
+        if result.return_data != correct_result {
+            println!("Result does not match, should be 2137");
+            return 0;
+        }
+
+        println!("Result matches");
+        return 1;
+    } 
 }
