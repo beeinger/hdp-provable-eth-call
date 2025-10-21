@@ -1,5 +1,5 @@
 [package]
-name = "hdp_bytecode"
+name = "hdp_provable_eth_call"
 version = "0.1.0"
 edition = "2024_07"
 

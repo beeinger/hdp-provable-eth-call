@@ -62,17 +62,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "hdp_bytecode"
-version = "0.1.0"
-dependencies = [
- "garaga",
- "hdp_cairo",
-]
-
-[[package]]
 name = "hdp_cairo"
 version = "0.1.0"
 dependencies = [
  "alexandria_bytes",
  "alexandria_encoding",
+]
+
+[[package]]
+name = "hdp_provable_eth_call"
+version = "0.1.0"
+dependencies = [
+ "garaga",
+ "hdp_cairo",
 ]

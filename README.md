@@ -89,9 +89,19 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 
 ---
 
+## Mentions
+
 This project makes use of code adapted from [**Kakarot**](https://github.com/kkrt-labs) [(@kkrt-labs/kakarot-ssj)](https://github.com/kkrt-labs/kakarot-ssj) under the [MIT License](https://github.com/kkrt-labs/kakarot-ssj/blob/main/LICENSE).
 
 Thanks for all the hard work guys 🙏
 
 > Original project: https://github.com/kkrt-labs/kakarot-ssj  
 > License file: https://github.com/kkrt-labs/kakarot-ssj/blob/main/LICENSE
+
+---
+
+## License
+
+`hdp-provable-eth-call` is licensed under the [GNU General Public License v3.0](./LICENSE).
+
+---
