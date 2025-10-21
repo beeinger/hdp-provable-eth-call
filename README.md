@@ -33,6 +33,15 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 ./run.sh
 ```
 
+### Waiting on HDP features
+
+- [ ] `account_get_bytecode`
+- [ ] `fusaka fork` compatibility
+- [ ] `account_is_deployed`
+- [ ] `header_get_prevrandao`
+- [ ] `secp256r1` support
+- [ ] `EC ops` support
+
 ### TODOs
 
 #### Next Goals:
@@ -77,15 +86,6 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
     - [x] using storage slots
     - [x] using precompiles
   - [x] proxy contract
-
-#### HDP requested features
-
-- [ ] `account_get_bytecode`
-- [ ] `fusaka fork` compatibility
-- [ ] `account_is_deployed`
-- [ ] `header_get_prevrandao`
-- [ ] `secp256r1` support
-- [ ] `EC ops` support
 
 ---
 
