@@ -1,3 +1,6 @@
+use super::types::Context;
+use core::circuit::ConstOne;
+use super::test_data::TestData;
 use hdp_cairo::HDP;
 use starknet::EthAddress;
 use crate::evm::interpreter::EVMImpl;
@@ -10,22 +13,17 @@ use crate::utils::env::get_env;
 
 pub fn execute_call(
     ref self: ContractState,
-    hdp: HDP,
-    codeHash: u256,
-    byteCode: ByteCodeLeWords,
-    calldata: Span<u8>,
-    time_and_space: TimeAndSpace,
-    correct_result: Span<u8>,
-    sender: EthAddress,
-    target: EthAddress,
+    context: Context,
+    test_data: TestData,
 ) -> u8 {
+
     let message = Message {
-        caller: sender,
-        target: target,
+        caller: context.sender,
+        target: context.target,
         gas_limit: 50_000_000,
-        data: calldata,
-        code: byteCode.get_original().bytes,
-        code_address: target,
+        data: test_data.calldata,
+        code: context.byteCode.get_original().bytes,
+        code_address: context.target,
         value: 0,
         should_transfer_value: false,
         depth: 0,
@@ -34,9 +32,9 @@ pub fn execute_call(
         accessed_storage_keys: Default::default(),
     };
 
-    let env = get_env(sender, 0, Some(@hdp), @time_and_space);
+    let env = get_env(context.sender, 0, Some(@context.hdp), @context.time_and_space);
 
-    let result = EVMImpl::process_message_call(message, env, false, Some(@hdp), @time_and_space);
+    let result = EVMImpl::process_message_call(message, env, false, Some(@context.hdp), @context.time_and_space);
 
     if result.status != ExecutionResultStatus::Success {
         println!("Result status is not Success, it is {:?}", result.status);
@@ -45,7 +43,7 @@ pub fn execute_call(
 
     println!("Result: {:?}", result.return_data);
 
-    if result.return_data != correct_result {
+    if result.return_data != test_data.correct_result {
         println!("Result does not match, should be 2137");
         return 0;
     }

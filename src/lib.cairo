@@ -9,7 +9,8 @@ pub mod executable {
     use hdp_cairo::HDP;
     use crate::eth_call_utils::bytecode::verify_bytecode;
     use crate::eth_call_utils::execute_call::execute_call;
-    use crate::eth_call_utils::test_data::test_data_get_storage_number;
+    use crate::eth_call_utils::test_data::{*};
+    use crate::eth_call_utils::types::Context;
     use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
     use crate::hdp_backend::TimeAndSpace;
@@ -17,6 +18,7 @@ pub mod executable {
     use crate::utils::eth_transaction::common::TxKind;
     use crate::utils::eth_transaction::eip1559::TxEip1559;
     use crate::utils::eth_transaction::transaction::Transaction;
+
 
     #[storage]
     struct Storage {}
@@ -35,9 +37,18 @@ pub mod executable {
         // HPECT1 testing contract address on Sepolia:
         let target = 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap();
 
+
         verify_bytecode(byteCode.clone(), codeHash);
 
-        // let context =
+        let context = Context { 
+            hdp: hdp,
+            codeHash: codeHash,
+            byteCode: byteCode,
+            time_and_space: time_and_space,
+            sender: sender,
+            target: target
+        
+        };        
 
         // ------------------------------------------------------------
 
@@ -47,27 +58,19 @@ pub mod executable {
         // performStorageOperations() - 0xcd07a432
         // let calldata: Span<u8> = [0xcd, 0x07, 0xa4, 0x32].span();
 
-        let get_storage_number = test_data_get_storage_number();
-
         execute_call(
             ref self,
-            hdp,
-            codeHash,
-            byteCode,
-            get_storage_number.calldata,
-            time_and_space,
-            get_storage_number.correct_result,
-            sender,
-            target,
+            context,
+            test_data_get_storage_number(),            
         )
         // execute_call(context, get_storage_number);
 
         // execute_call(context, test_data_get_storage_number());
-    // execute_call(context, test_data_get_storage_number());
-    // execute_call(context, test_data_get_storage_number());
-    // // ? Doesn't work, needs hdp secp256r1 support
-    // execute_call(context, test_data_get_storage_number());
-    // execute_call(context, test_data_get_storage_number());
+        // execute_call(context, test_data_get_storage_number());
+        // execute_call(context, test_data_get_storage_number());
+        // // ? Doesn't work, needs hdp secp256r1 support
+        // execute_call(context, test_data_get_storage_number());
+        // execute_call(context, test_data_get_storage_number());
     }
 
     ///? Usable after HDP bytecode support is here,
