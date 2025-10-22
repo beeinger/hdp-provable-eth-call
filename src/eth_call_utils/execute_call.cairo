@@ -1,13 +1,9 @@
 use super::types::Context;
-use core::circuit::ConstOne;
 use super::test_data::TestData;
-use hdp_cairo::HDP;
-use starknet::EthAddress;
 use crate::evm::interpreter::EVMImpl;
 use crate::evm::model::{ExecutionResultStatus, Message};
 use crate::executable::ContractState;
-use crate::hdp_backend::TimeAndSpace;
-use crate::utils::bytecode::{ByteCodeLeWords, OriginalByteCode};
+use crate::utils::bytecode::OriginalByteCode;
 use crate::utils::env::get_env;
 
 
