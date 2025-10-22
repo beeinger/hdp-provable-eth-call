@@ -1,18 +1,13 @@
-use super::types::Context;
-use super::test_data::TestData;
 use crate::evm::interpreter::EVMImpl;
 use crate::evm::model::{ExecutionResultStatus, Message};
 use crate::executable::ContractState;
 use crate::utils::bytecode::OriginalByteCode;
 use crate::utils::env::get_env;
+use super::test_data::TestData;
+use super::types::Context;
 
 
-pub fn execute_call(
-    ref self: ContractState,
-    context: Context,
-    test_data: TestData,
-) -> u8 {
-
+pub fn execute_call(ref self: ContractState, context: Context, test_data: TestData) -> u8 {
     let message = Message {
         caller: context.sender,
         target: context.target,
@@ -30,7 +25,9 @@ pub fn execute_call(
 
     let env = get_env(context.sender, 0, Some(@context.hdp), @context.time_and_space);
 
-    let result = EVMImpl::process_message_call(message, env, false, Some(@context.hdp), @context.time_and_space);
+    let result = EVMImpl::process_message_call(
+        message, env, false, Some(@context.hdp), @context.time_and_space,
+    );
 
     if result.status != ExecutionResultStatus::Success {
         println!("Result status is not Success, it is {:?}", result.status);
