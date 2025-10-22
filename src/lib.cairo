@@ -9,6 +9,7 @@ pub mod executable {
     use hdp_cairo::HDP;
     use crate::eth_call_utils::bytecode::verify_bytecode;
     use crate::eth_call_utils::execute_call::execute_call;
+    use crate::eth_call_utils::test_data::test_data_get_storage_number;
     use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
     use crate::hdp_backend::TimeAndSpace;
@@ -29,31 +30,33 @@ pub mod executable {
 
         let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9455096 };
 
-         // beeinger.eth on Sepolia:
+        // beeinger.eth on Sepolia:
         let sender = 0x946F7Cc10FB0A6DC70860B6cF55Ef2C722cC7e1a.try_into().unwrap();
         // HPECT1 testing contract address on Sepolia:
-        let target = 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap();       
-
-        let calldata: Span<u8> = [0x20, 0x47, 0x87, 0x23].span();
-
-        let correct_result = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0x08, 0x59,
-        ]                     
-            .span();
+        let target = 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap();
 
         verify_bytecode(byteCode.clone(), codeHash);
-       
+
+        // ------------------------------------------------------------
+
+        // getHardcodedNumber() - 0x9dfcf569
+        // let calldata: Span<u8> = [0x9d, 0xfc, 0xf5, 0x69].span();
+
+        // performStorageOperations() - 0xcd07a432
+        // let calldata: Span<u8> = [0xcd, 0x07, 0xa4, 0x32].span();
+
+        let test_data = test_data_get_storage_number();
+
         execute_call(
-            ref self, 
-            hdp, 
-            codeHash, 
-            byteCode, 
-            calldata, 
-            time_and_space, 
-            correct_result,
+            ref self,
+            hdp,
+            codeHash,
+            byteCode,
+            test_data.calldata,
+            time_and_space,
+            test_data.correct_result,
             sender,
-            target
+            target,
         )
     }
 
@@ -105,6 +108,4 @@ pub mod executable {
         println!("Result matches");
         return 1;
     }
-
-
 }

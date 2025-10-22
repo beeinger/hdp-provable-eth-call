@@ -1,30 +1,24 @@
-
-
-use starknet::EthAddress;
-use crate::executable::ContractState;
 use hdp_cairo::HDP;
+use starknet::EthAddress;
+use crate::evm::interpreter::EVMImpl;
+use crate::evm::model::{ExecutionResultStatus, Message};
+use crate::executable::ContractState;
+use crate::hdp_backend::TimeAndSpace;
 use crate::utils::bytecode::{ByteCodeLeWords, OriginalByteCode};
 use crate::utils::env::get_env;
-use crate::evm::model::{ExecutionResultStatus, Message};
-use crate::evm::interpreter::EVMImpl;
-use crate::hdp_backend::TimeAndSpace;
 
 
 pub fn execute_call(
     ref self: ContractState,
-    hdp: HDP, 
+    hdp: HDP,
     codeHash: u256,
     byteCode: ByteCodeLeWords,
     calldata: Span<u8>,
     time_and_space: TimeAndSpace,
     correct_result: Span<u8>,
     sender: EthAddress,
-    target: EthAddress
-
+    target: EthAddress,
 ) -> u8 {
-
-    // getStorageNumber() - 0x20478723
-
     let message = Message {
         caller: sender,
         target: target,
@@ -38,13 +32,11 @@ pub fn execute_call(
         read_only: false,
         accessed_addresses: Default::default(),
         accessed_storage_keys: Default::default(),
-    }; 
+    };
 
     let env = get_env(sender, 0, Some(@hdp), @time_and_space);
 
-    let result = EVMImpl::process_message_call(
-        message, env, false, Some(@hdp), @time_and_space,
-    );
+    let result = EVMImpl::process_message_call(message, env, false, Some(@hdp), @time_and_space);
 
     if result.status != ExecutionResultStatus::Success {
         println!("Result status is not Success, it is {:?}", result.status);
@@ -60,4 +52,4 @@ pub fn execute_call(
 
     println!("Result matches");
     return 1;
-} 
+}
