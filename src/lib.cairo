@@ -37,6 +37,8 @@ pub mod executable {
 
         verify_bytecode(byteCode.clone(), codeHash);
 
+        // let context =
+
         // ------------------------------------------------------------
 
         // getHardcodedNumber() - 0x9dfcf569
@@ -45,19 +47,27 @@ pub mod executable {
         // performStorageOperations() - 0xcd07a432
         // let calldata: Span<u8> = [0xcd, 0x07, 0xa4, 0x32].span();
 
-        let test_data = test_data_get_storage_number();
+        let get_storage_number = test_data_get_storage_number();
 
         execute_call(
             ref self,
             hdp,
             codeHash,
             byteCode,
-            test_data.calldata,
+            get_storage_number.calldata,
             time_and_space,
-            test_data.correct_result,
+            get_storage_number.correct_result,
             sender,
             target,
         )
+        // execute_call(context, get_storage_number);
+
+        // execute_call(context, test_data_get_storage_number());
+    // execute_call(context, test_data_get_storage_number());
+    // execute_call(context, test_data_get_storage_number());
+    // // ? Doesn't work, needs hdp secp256r1 support
+    // execute_call(context, test_data_get_storage_number());
+    // execute_call(context, test_data_get_storage_number());
     }
 
     ///? Usable after HDP bytecode support is here,
