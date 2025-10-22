@@ -36,7 +36,7 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 ### Waiting on HDP features
 
 - [ ] `account_get_bytecode`
-- [ ] `fusaka fork` compatibility
+- [x] `fusaka fork` compatibility
 - [ ] `account_is_deployed`
 - [ ] `header_get_prevrandao`
 - [ ] `secp256r1` support
@@ -48,7 +48,7 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 
 - [x] execute simple bytecode (DONE! run ERC20 decimals())
 - [x] execute more complex bytecode accessing storage slots
-  - [ ] needs `fusaka compatibility PR` on HDP for the sound run to pass
+  - [x] ~~needs `fusaka compatibility PR` on HDP for the sound run to pass~~
 - [ ] execute even more complex bytecode - a proxy running the code of another contract
   - [ ] needs `account_get_bytecode PR` on HDP to be possible
 
@@ -67,7 +67,7 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 
   - [x] storage - todos with `[storage]`
   - [x] account - todos with `[account]`
-    - [ ] `fetch_bytecode` remains unimplemented, it needs HDP support.
+    - [x] ~~`fetch_bytecode` remains unimplemented, it needs HDP support.~~
     - [ ] `is_deployed` currently returns `true` always, unless it panics, needs a proper way of handling this check
 
 - [x] fix precompiles in [interpreter.cairo](./src/evm/interpreter.cairo) search for: `[precompiles]`
