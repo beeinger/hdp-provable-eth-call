@@ -6,6 +6,7 @@ pub struct TestData {
 pub fn test_data_get_storage_number() -> TestData {
     TestData {
         calldata: [0x20, 0x47, 0x87, 0x23].span(),
+        // result = 2137
         correct_result: [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0x08, 0x59,
@@ -17,6 +18,7 @@ pub fn test_data_get_storage_number() -> TestData {
 pub fn test_data_get_hardcoded_number() -> TestData {
     TestData {
         calldata: [0x9d, 0xfc, 0xf5, 0x69].span(),
+        // result = 1
         correct_result: [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0x01,
@@ -28,6 +30,7 @@ pub fn test_data_get_hardcoded_number() -> TestData {
 pub fn test_data_get_hardcoded_string() -> TestData {
     TestData {
         calldata: [0xa6, 0x87, 0x5a, 0x2f].span(),
+        // result = "Hello, World!"
         correct_result: [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -41,6 +44,7 @@ pub fn test_data_get_hardcoded_string() -> TestData {
 pub fn test_data_get_constant_number() -> TestData {
     TestData {
         calldata: [0xaa, 0x27, 0x74, 0x48].span(),
+        // result = 2137
         correct_result: [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0x08, 0x59,
@@ -52,6 +56,7 @@ pub fn test_data_get_constant_number() -> TestData {
 pub fn test_data_get_constant_string() -> TestData {
     TestData {
         calldata: [0x9e, 0xa4, 0x0c, 0x01].span(),
+        // result = "Hello, World!"
         correct_result: [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -65,6 +70,7 @@ pub fn test_data_get_constant_string() -> TestData {
 pub fn test_data_get_storage_string() -> TestData {
     TestData {
         calldata: [0xfe, 0x6d, 0x7b, 0xf7].span(),
+        // result = "Hello, World!"
         correct_result: [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

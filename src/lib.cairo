@@ -9,10 +9,7 @@ pub mod executable {
     use hdp_cairo::HDP;
     use crate::eth_call_utils::bytecode::verify_bytecode;
     use crate::eth_call_utils::execute_call::execute_call;
-    use crate::eth_call_utils::test_data::{
-        *, test_data_get_constant_number, test_data_get_constant_string,
-        test_data_get_hardcoded_string, test_data_get_storage_string,
-    };
+    use crate::eth_call_utils::test_data::*;
     use crate::eth_call_utils::types::Context;
     use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
@@ -49,6 +46,7 @@ pub mod executable {
             target: target,
         };
 
+        // begin basic test calls
         execute_call(ref self, ref context, test_data_get_storage_number());
         execute_call(ref self, ref context, test_data_get_hardcoded_number());
         execute_call(ref self, ref context, test_data_get_hardcoded_string());
