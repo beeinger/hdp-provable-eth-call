@@ -46,13 +46,25 @@ pub mod executable {
             target: target,
         };
 
-        // begin basic test calls
+        // Basic Data Retrieval
         execute_call(ref self, ref context, test_data_get_storage_number());
         execute_call(ref self, ref context, test_data_get_hardcoded_number());
         execute_call(ref self, ref context, test_data_get_hardcoded_string());
         execute_call(ref self, ref context, test_data_get_constant_number());
         execute_call(ref self, ref context, test_data_get_constant_string());
+        // Arithmetic Operations
         execute_call(ref self, ref context, test_data_get_storage_string());
+        execute_call(ref self, ref context, test_data_get_storage_mapping());
+        execute_call(ref self, ref context, test_data_perform_arithmetic_operations());
+        execute_call(ref self, ref context, test_data_perform_modulo_operation());
+        execute_call(ref self, ref context, test_data_perform_exponentiation());
+        execute_call(ref self, ref context, test_data_perform_complex_calculation());
+        execute_call(ref self, ref context, test_data_calculate_with_constant());
+        execute_call(ref self, ref context, test_data_calculate_with_constant_string());
+        execute_call(ref self, ref context, test_data_calculate_with_storage_number());
+        execute_call(ref self, ref context, test_data_calculate_with_storage_string());
+        execute_call(ref self, ref context, test_data_calculate_with_storage_mapping());
+        // Bitwise Operations
     }
 
     ///? Usable after HDP bytecode support is here,

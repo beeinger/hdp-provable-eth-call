@@ -37,7 +37,7 @@ pub fn execute_call(ref self: ContractState, ref context: Context, test_data: Te
     println!("Result: {:?}", result.return_data);
 
     if result.return_data != test_data.correct_result {
-        println!("Result does not match, should be 2137");
+        println!("Result does not match");
         return 0;
     }
 
