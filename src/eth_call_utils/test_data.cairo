@@ -252,6 +252,103 @@ pub fn test_data_calculate_with_storage_mapping() -> TestData {
             .span(),
     }
 }
+
+pub fn test_data_perform_bitwise_operations() -> TestData {
+    TestData {
+        // params = a: 2137, b: 1
+        calldata: [
+            0x41, 0x50, 0, 0xfb, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01,
+        ]
+            .span(),
+        // result = (1, 2137, 2136)
+        correct_result: [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0x08, 0x59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x58,
+        ]
+            .span(),
+    }
+}
+
+pub fn test_data_perform_shift_operations() -> TestData {
+    TestData {
+        // params = a: 2137, shift: 1
+        calldata: [
+            0xbf, 0x1f, 0x47, 0xe3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01,
+        ]
+            .span(),
+        // result = (4274, 1068)
+        correct_result: [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0x10, 0xb2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0x04, 0x2c,
+        ]
+            .span(),
+    }
+}
+
+pub fn test_data_perform_keccak256_hash() -> TestData {
+    TestData {
+        // params = data: [0x01]
+        calldata: [
+            0x8c, 0xec, 0x56, 0x3d, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ]
+            .span(),
+        // result = keccak256([0x01])
+        correct_result: [
+            0x5f, 0xe7, 0xf9, 0x77, 0xe7, 0x1d, 0xba, 0x2e, 0xa1, 0xa6, 0x8e, 0x21, 0x05, 0x7b,
+            0xee, 0xbb, 0x9b, 0xe2, 0xac, 0x30, 0xc6, 0x41, 0x0a, 0xa3, 0x8d, 0x4f, 0x3f, 0xbe,
+            0x41, 0xdc, 0xff, 0xd2,
+        ]
+            .span(),
+    }
+}
+
+pub fn test_data_perform_keccak256_with_storage() -> TestData {
+    TestData {
+        // params = none
+        calldata: [0x64, 0x3d, 0xbb, 0x43].span(),
+        // result = keccak256(abi.encodePacked(exampleNumber, exampleString))
+        correct_result: [
+            0x3e, 0xa0, 0xbf, 0xdd, 0x36, 0x15, 0x26, 0xcc, 0xa9, 0x4b, 0xa1, 0xb3, 0xf7, 0x5e,
+            0xa5, 0xc8, 0xd2, 0x77, 0xb9, 0xb1, 0x9f, 0xb7, 0xb0, 0xb2, 0x03, 0x60, 0x85, 0xf6,
+            0xf3, 0x0b, 0xa9, 0xd9,
+        ]
+            .span(),
+    }
+}
+
+pub fn test_data_perform_keccak256_with_multiple_inputs() -> TestData {
+    TestData {
+        // params = num: 2137, str: "Hello, World!", addr:
+        // 0x0000000000000000000000000000000000000001
+        calldata: [
+            0x1b, 0xe6, 0xd8, 0xa9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x0d, 0x48, 0x65,
+            0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ]
+            .span(),
+        // result = keccak256(abi.encodePacked(num, str, addr))
+        correct_result: [
+            0xc8, 0xf8, 0x48, 0x46, 0xc4, 0x87, 0x8d, 0x9b, 0xc2, 0x29, 0x38, 0xe2, 0xaa, 0x64,
+            0xc1, 0xb2, 0x4b, 0xf8, 0x7c, 0xec, 0x4f, 0x2f, 0x5b, 0x4f, 0xa4, 0xa3, 0xce, 0xac,
+            0x50, 0x02, 0xf3, 0xc6,
+        ]
+            .span(),
+    }
+}
 // getHardcodedNumber() - 0x9dfcf569
 // let calldata: Span<u8> = [0x9d, 0xfc, 0xf5, 0x69].span();
 

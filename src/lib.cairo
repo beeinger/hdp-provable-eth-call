@@ -46,13 +46,13 @@ pub mod executable {
             target: target,
         };
 
-        // Basic Data Retrieval
+        // ============ Basic Data Retrieval Functions ============
         execute_call(ref self, ref context, test_data_get_storage_number());
         execute_call(ref self, ref context, test_data_get_hardcoded_number());
         execute_call(ref self, ref context, test_data_get_hardcoded_string());
         execute_call(ref self, ref context, test_data_get_constant_number());
         execute_call(ref self, ref context, test_data_get_constant_string());
-        // Arithmetic Operations
+        // ============ Arithmetic Operations ============
         execute_call(ref self, ref context, test_data_get_storage_string());
         execute_call(ref self, ref context, test_data_get_storage_mapping());
         execute_call(ref self, ref context, test_data_perform_arithmetic_operations());
@@ -64,7 +64,13 @@ pub mod executable {
         execute_call(ref self, ref context, test_data_calculate_with_storage_number());
         execute_call(ref self, ref context, test_data_calculate_with_storage_string());
         execute_call(ref self, ref context, test_data_calculate_with_storage_mapping());
-        // Bitwise Operations
+        // ============ Bitwise Operations ============
+        execute_call(ref self, ref context, test_data_perform_bitwise_operations());
+        execute_call(ref self, ref context, test_data_perform_shift_operations());
+        // ============ Hash Operations ============
+        execute_call(ref self, ref context, test_data_perform_keccak256_hash());
+        execute_call(ref self, ref context, test_data_perform_keccak256_with_storage());
+        execute_call(ref self, ref context, test_data_perform_keccak256_with_multiple_inputs());
     }
 
     ///? Usable after HDP bytecode support is here,
