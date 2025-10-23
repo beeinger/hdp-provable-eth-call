@@ -9,7 +9,10 @@ pub mod executable {
     use hdp_cairo::HDP;
     use crate::eth_call_utils::bytecode::verify_bytecode;
     use crate::eth_call_utils::execute_call::execute_call;
-    use crate::eth_call_utils::test_data::*;
+    use crate::eth_call_utils::test_data::{
+        *, test_data_get_constant_number, test_data_get_constant_string,
+        test_data_get_hardcoded_string, test_data_get_storage_string,
+    };
     use crate::eth_call_utils::types::Context;
     use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
@@ -25,9 +28,7 @@ pub mod executable {
 
 
     #[external(v0)]
-    pub fn main(
-        ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCodeLeWords,
-    ) -> u8 {
+    pub fn main(ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCodeLeWords) {
         //? byteCode has to be cloned because cairo_keccak modifies the array
 
         let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9455096 };
@@ -39,16 +40,21 @@ pub mod executable {
 
         verify_bytecode(byteCode.clone(), codeHash);
 
-        let context = Context {
+        let mut context = Context {
             hdp: hdp,
             codeHash: codeHash,
-            byteCode: byteCode,
+            byteCode: byteCode.get_original().bytes,
             time_and_space: time_and_space,
             sender: sender,
             target: target,
         };
 
-        execute_call(ref self, context, test_data_get_storage_number())
+        execute_call(ref self, ref context, test_data_get_storage_number());
+        execute_call(ref self, ref context, test_data_get_hardcoded_number());
+        execute_call(ref self, ref context, test_data_get_hardcoded_string());
+        execute_call(ref self, ref context, test_data_get_constant_number());
+        execute_call(ref self, ref context, test_data_get_constant_string());
+        execute_call(ref self, ref context, test_data_get_storage_string());
     }
 
     ///? Usable after HDP bytecode support is here,

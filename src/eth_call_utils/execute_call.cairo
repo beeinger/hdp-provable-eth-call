@@ -7,13 +7,13 @@ use super::test_data::TestData;
 use super::types::Context;
 
 
-pub fn execute_call(ref self: ContractState, context: Context, test_data: TestData) -> u8 {
+pub fn execute_call(ref self: ContractState, ref context: Context, test_data: TestData) -> u8 {
     let message = Message {
         caller: context.sender,
         target: context.target,
         gas_limit: 50_000_000,
         data: test_data.calldata,
-        code: context.byteCode.get_original().bytes,
+        code: context.byteCode,
         code_address: context.target,
         value: 0,
         should_transfer_value: false,
