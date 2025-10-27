@@ -71,6 +71,53 @@ pub mod executable {
         execute_call(ref self, ref context, test_data_perform_keccak256_hash());
         execute_call(ref self, ref context, test_data_perform_keccak256_with_storage());
         execute_call(ref self, ref context, test_data_perform_keccak256_with_multiple_inputs());
+        // ============ Storage Operations ============
+        execute_call(ref self, ref context, test_data_perform_storage_operations());
+        execute_call(ref self, ref context, test_data_perform_storage_mapping_operations());
+        // TODO: @herodotus [tests]
+        //execute_call(ref self, ref context, test_data_perform_multiple_storage_operations());
+        // ============ Call Operations ============
+        execute_call(ref self, ref context, test_data_perform_static_call());
+        // TODO: @herodotus [tests]
+
+        // execute_call(ref self, ref context, test_data_perform_delegate_call_with_return());
+        execute_call(ref self, ref context, test_data_perform_delegate_call());
+        // ============ Create Operations ============
+        // TODO: @herodotus [tests]
+        //execute_call(ref self, ref context, test_data_perform_create_operation());
+        // TODO: @herodotus [tests]
+        //execute_call(ref self, ref context, test_data_perform_create2_operation());
+        // ============ Log Operations ============
+        execute_call(ref self, ref context, test_data_perform_log_operation());
+        // ============ Control Flow Operations ============
+        // TODO: @herodotus [tests ]- there is no revert as a return value suppport in lib
+        execute_call(ref self, ref context, test_data_perform_revert_operation());
+        execute_call(ref self, ref context, test_data_perform_assert_operation());
+        //============ Block Operations ============
+        execute_call(ref self, ref context, test_data_perform_block_operations());
+        //============ Gas Operations ============
+        execute_call(ref self, ref context, test_data_perform_gas_operations());
+        //============ Address Operations ============
+        execute_call(ref self, ref context, test_data_perform_address_operations());
+        //============ Complex OpcodeOperations ============
+    // TODO: @herodotus [tests]
+    //execute_call(ref self, ref context, test_data_perform_complex_opcode_combination());
+    // ============ HPECT2 Integration Functions ============
+    // TODO: @herodotus [tests]
+    //execute_call(ref self, ref context, test_data_calculate_with_hpect2_number());
+    // TODO: @herodotus [tests]
+    //execute_call(ref self, ref context, test_data_get_caller_address_via_hpect2());
+    // ============ Precompile Interface Functions ============
+    // TODO: @herodotus [tests] every test in precompiles
+    //execute_call(ref self, ref context, test_data_perform_ecrecover());
+    //execute_call(ref self, ref context, test_data_perform_sha256());
+    //execute_call(ref self, ref context, test_data_perform_ripemd160());
+    //execute_call(ref self, ref context, test_data_perform_identity());
+    //execute_call(ref self, ref context, test_data_perform_modexp());
+    //execute_call(ref self, ref context, test_data_perform_bn256_add());
+    //execute_call(ref self, ref context, test_data_perform_bn256_mul());
+    //execute_call(ref self, ref context, test_data_perform_bn256_pairing());
+    //execute_call(ref self, ref context, test_data_perform_blake2f());
     }
 
     ///? Usable after HDP bytecode support is here,

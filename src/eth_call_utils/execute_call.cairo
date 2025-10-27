@@ -6,7 +6,6 @@ use crate::utils::env::get_env;
 use super::test_data::TestData;
 use super::types::Context;
 
-
 pub fn execute_call(ref self: ContractState, ref context: Context, test_data: TestData) -> u8 {
     let message = Message {
         caller: context.sender,
