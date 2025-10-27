@@ -100,24 +100,24 @@ pub mod executable {
         //============ Address Operations ============
         execute_call(ref self, ref context, test_data_perform_address_operations());
         //============ Complex OpcodeOperations ============
-        // TODO: @herodotus [tests]
-        // execute_call(ref self, ref context, test_data_perform_complex_opcode_combination());
-        // ============ HPECT2 Integration Functions ============
-        // TODO: @herodotus [tests]
-        // execute_call(ref self, ref context, test_data_calculate_with_hpect2_number());
-        // TODO: @herodotus [tests]
-        // execute_call(ref self, ref context, test_data_get_caller_address_via_hpect2());
-        // ============ Precompile Interface Functions ============
-        // TODO: @herodotus [tests] every test in precompiles
-        // execute_call(ref self, ref context, test_data_perform_ecrecover());
-        // execute_call(ref self, ref context, test_data_perform_sha256());
-        // execute_call(ref self, ref context, test_data_perform_ripemd160());
-        // execute_call(ref self, ref context, test_data_perform_identity());
-        // execute_call(ref self, ref context, test_data_perform_modexp());
-        // execute_call(ref self, ref context, test_data_perform_bn256_add());
-        // execute_call(ref self, ref context, test_data_perform_bn256_mul());
-        // execute_call(ref self, ref context, test_data_perform_bn256_pairing());
-        // execute_call(ref self, ref context, test_data_perform_blake2f());
+    // TODO: @herodotus [tests]
+    // execute_call(ref self, ref context, test_data_perform_complex_opcode_combination());
+    // ============ HPECT2 Integration Functions ============
+    // TODO: @herodotus [tests]
+    // execute_call(ref self, ref context, test_data_calculate_with_hpect2_number());
+    // TODO: @herodotus [tests]
+    // execute_call(ref self, ref context, test_data_get_caller_address_via_hpect2());
+    // ============ Precompile Interface Functions ============
+    // TODO: @herodotus [tests] every test in precompiles
+    // execute_call(ref self, ref context, test_data_perform_ecrecover());
+    // execute_call(ref self, ref context, test_data_perform_sha256());
+    // execute_call(ref self, ref context, test_data_perform_ripemd160());
+    // execute_call(ref self, ref context, test_data_perform_identity());
+    // execute_call(ref self, ref context, test_data_perform_modexp());
+    // execute_call(ref self, ref context, test_data_perform_bn256_add());
+    // execute_call(ref self, ref context, test_data_perform_bn256_mul());
+    // execute_call(ref self, ref context, test_data_perform_bn256_pairing());
+    // execute_call(ref self, ref context, test_data_perform_blake2f());
     }
 
     ///? Usable after HDP bytecode support is here,
