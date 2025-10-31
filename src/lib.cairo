@@ -11,13 +11,9 @@ pub mod executable {
     use crate::eth_call_utils::execute_call::execute_call;
     use crate::eth_call_utils::test_data::*;
     use crate::eth_call_utils::types::Context;
-    use crate::evm::gas::calculate_intrinsic_gas_cost;
     use crate::evm::interpreter::EVMImpl;
     use crate::hdp_backend::TimeAndSpace;
     use crate::utils::bytecode::{ByteCodeLeWords, OriginalByteCode};
-    use crate::utils::eth_transaction::common::TxKind;
-    use crate::utils::eth_transaction::eip1559::TxEip1559;
-    use crate::utils::eth_transaction::transaction::Transaction;
 
 
     #[storage]
@@ -28,12 +24,12 @@ pub mod executable {
     pub fn main(ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCodeLeWords) {
         //? byteCode has to be cloned because cairo_keccak modifies the array
 
-        let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9455096 };
+        let time_and_space = TimeAndSpace { chain_id: 1, block_number: 23694687 };
 
-        // beeinger.eth on Sepolia:
+        // beeinger.eth:
         let sender = 0x946F7Cc10FB0A6DC70860B6cF55Ef2C722cC7e1a.try_into().unwrap();
-        // HPECT1 testing contract address on Sepolia:
-        let target = 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap();
+        // USDT contract address on Ethereum:
+        let target = 0xdAC17F958D2ee523a2206206994597C13D831ec7.try_into().unwrap();
 
         verify_bytecode(byteCode.clone(), codeHash);
 
@@ -46,126 +42,24 @@ pub mod executable {
             target: target,
         };
 
-        // ============ Basic Data Retrieval Functions ============
-        execute_call(ref self, ref context, test_data_get_storage_number());
-        execute_call(ref self, ref context, test_data_get_hardcoded_number());
-        execute_call(ref self, ref context, test_data_get_hardcoded_string());
-        execute_call(ref self, ref context, test_data_get_constant_number());
-        execute_call(ref self, ref context, test_data_get_constant_string());
-        // ============ Arithmetic Operations ============
-        execute_call(ref self, ref context, test_data_get_storage_string());
-        execute_call(ref self, ref context, test_data_get_storage_mapping());
-        execute_call(ref self, ref context, test_data_perform_arithmetic_operations());
-        execute_call(ref self, ref context, test_data_perform_modulo_operation());
-        execute_call(ref self, ref context, test_data_perform_exponentiation());
-        execute_call(ref self, ref context, test_data_perform_complex_calculation());
-        execute_call(ref self, ref context, test_data_calculate_with_constant());
-        execute_call(ref self, ref context, test_data_calculate_with_constant_string());
-        execute_call(ref self, ref context, test_data_calculate_with_storage_number());
-        execute_call(ref self, ref context, test_data_calculate_with_storage_string());
-        execute_call(ref self, ref context, test_data_calculate_with_storage_mapping());
-        // ============ Bitwise Operations ============
-        execute_call(ref self, ref context, test_data_perform_bitwise_operations());
-        execute_call(ref self, ref context, test_data_perform_shift_operations());
-        // ============ Hash Operations ============
-        execute_call(ref self, ref context, test_data_perform_keccak256_hash());
-        execute_call(ref self, ref context, test_data_perform_keccak256_with_storage());
-        execute_call(ref self, ref context, test_data_perform_keccak256_with_multiple_inputs());
-        // ============ Storage Operations ============
-        execute_call(ref self, ref context, test_data_perform_storage_operations());
-        execute_call(ref self, ref context, test_data_perform_storage_mapping_operations());
-        // TODO: @herodotus [tests]
-        //execute_call(ref self, ref context, test_data_perform_multiple_storage_operations());
-        // ============ Call Operations ============
-        execute_call(ref self, ref context, test_data_perform_static_call());
-        // TODO: @herodotus [tests]
+        let test_data = TestData {
+            // vitalik.eth address: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
+            // raw calldata for balanceOf(address)
+            // 0x70a08231000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045
 
-        // execute_call(ref self, ref context, test_data_perform_delegate_call_with_return());
-        execute_call(ref self, ref context, test_data_perform_delegate_call());
-        // ============ Create Operations ============
-        // TODO: @herodotus [tests]
-        //execute_call(ref self, ref context, test_data_perform_create_operation());
-        // TODO: @herodotus [tests]
-        //execute_call(ref self, ref context, test_data_perform_create2_operation());
-        // ============ Log Operations ============
-        execute_call(ref self, ref context, test_data_perform_log_operation());
-        // ============ Control Flow Operations ============
-        // TODO: @herodotus [tests ]- there is no revert as a return value suppport in lib
-        execute_call(ref self, ref context, test_data_perform_revert_operation());
-        execute_call(ref self, ref context, test_data_perform_assert_operation());
-        //============ Block Operations ============
-        execute_call(ref self, ref context, test_data_perform_block_operations());
-        //============ Gas Operations ============
-        execute_call(ref self, ref context, test_data_perform_gas_operations());
-        //============ Address Operations ============
-        execute_call(ref self, ref context, test_data_perform_address_operations());
-        //============ Complex OpcodeOperations ============
-    // TODO: @herodotus [tests]
-    // execute_call(ref self, ref context, test_data_perform_complex_opcode_combination());
-    // ============ HPECT2 Integration Functions ============
-    // TODO: @herodotus [tests]
-    // execute_call(ref self, ref context, test_data_calculate_with_hpect2_number());
-    // TODO: @herodotus [tests]
-    // execute_call(ref self, ref context, test_data_get_caller_address_via_hpect2());
-    // ============ Precompile Interface Functions ============
-    // TODO: @herodotus [tests] every test in precompiles
-    // execute_call(ref self, ref context, test_data_perform_ecrecover());
-    // execute_call(ref self, ref context, test_data_perform_sha256());
-    // execute_call(ref self, ref context, test_data_perform_ripemd160());
-    // execute_call(ref self, ref context, test_data_perform_identity());
-    // execute_call(ref self, ref context, test_data_perform_modexp());
-    // execute_call(ref self, ref context, test_data_perform_bn256_add());
-    // execute_call(ref self, ref context, test_data_perform_bn256_mul());
-    // execute_call(ref self, ref context, test_data_perform_bn256_pairing());
-    // execute_call(ref self, ref context, test_data_perform_blake2f());
-    }
-
-    ///? Usable after HDP bytecode support is here,
-    ///? this is how it should work, the above is just a hack to run bytecode directly.
-    pub fn new_main(ref self: ContractState, hdp: HDP) -> u8 {
-        // decimals()
-        let calldata: Span<u8> = [0x31, 0x3c, 0xe5, 0x67].span();
-
-        let time_and_space = TimeAndSpace { chain_id: 1, block_number: 0 };
-
-        // beeinger.eth on L1 ETH:
-        let sender = 0x946F7Cc10FB0A6DC70860B6cF55Ef2C722cC7e1a.try_into().unwrap();
-        // ARB ERC20 token on L1 ETH:
-        let target = 0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1.try_into().unwrap();
-
-        let tx = Transaction::Eip1559(
-            TxEip1559 {
-                chain_id: time_and_space.chain_id.try_into().unwrap(),
-                nonce: 0,
-                gas_limit: 50_000_000,
-                max_fee_per_gas: 1_000_000_000,
-                max_priority_fee_per_gas: 500_000,
-                to: TxKind::Call(target),
-                value: 0,
-                access_list: [].span(),
-                input: calldata,
-            },
-        );
-
-        let intrinsic_gas_cost = calculate_intrinsic_gas_cost(@tx);
-
-        let result = EVMImpl::process_transaction(
-            sender, tx, intrinsic_gas_cost, Some(@hdp), @time_and_space,
-        );
-
-        println!("Result: {:?}", result.return_data);
-
-        if result
-            .return_data != [
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 18,
+            calldata: [
+                0x70, 0xa0, 0x82, 0x31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xd8, 0xda, 0x6b, 0xf2,
+                0x69, 0x64, 0xaf, 0x9d, 0x7e, 0xed, 0x9e, 0x03, 0xe5, 0x34, 0x15, 0xd3, 0x7a, 0xa9,
+                0x60, 0x45,
             ]
-            .span() {
-            println!("Result does not match, should be 18");
-            return 0;
-        }
+                .span(),
+            correct_result: [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0x0F, 0x98, 0xDE, 0xB9,
+            ]
+                .span(),
+        };
 
-        println!("Result matches");
-        return 1;
+        execute_call(ref self, ref context, test_data);
     }
 }
