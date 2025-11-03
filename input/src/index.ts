@@ -18,9 +18,9 @@ function reverseBytePairs(hexString: string): string {
 function processCodeHash(codeHashArg: string): [string, string] {
   const normalized = normalizeHex(codeHashArg);
   const padded = normalized.padStart(64, "0");
-  const reversed = reverseBytePairs(padded);
-  const low128 = "0x" + reversed.slice(32);
-  const high128 = "0x" + reversed.slice(0, 32);
+  // const reversed = reverseBytePairs(padded);
+  const low128 = "0x" + padded.slice(32);
+  const high128 = "0x" + padded.slice(0, 32);
   return [low128, high128];
 }
 
@@ -42,32 +42,41 @@ function buildBytecodeInputs(bytecodeArg: string): string[] {
   // }
   // console.log();
 
-  const fullChunks = computeFullChunkCount(hex);
-  const remainingNibbles = hex.length % 16;
+  // const fullChunks = computeFullChunkCount(hex);
+  // const remainingNibbles = hex.length % 16;
 
+  // const values: string[] = [];
+
+  // // Array length (number of u64 words)
+  // values.push("0x" + fullChunks.toString(16));
+
+  // // Full 8-byte words in little-endian
+  // for (let i = 0; i < fullChunks * 16; i += 16) {
+  //   const chunk = hex.slice(i, i + 16);
+  //   values.push("0x" + toLittleEndianU64(chunk));
+  // }
+
+  // // Tail processing: last_input_word and last_input_num_bytes
+  // if (remainingNibbles > 0) {
+  //   const remainingHex = hex.slice(fullChunks * 16);
+  //   const paddedRemainingHex = remainingHex.padEnd(16, "0");
+  //   const littleEndianRemaining = toLittleEndianU64(paddedRemainingHex);
+  //   values.push("0x" + littleEndianRemaining);
+
+  //   const validBytes = Math.floor(remainingNibbles / 2);
+  //   values.push("0x" + validBytes.toString(16));
+  // } else {
+  //   values.push("0x0");
+  //   values.push("0x0");
+  // }
+
+  // Ensure hex length is even by prepending with '0' if needed
+  let normalizedHex = hex.length % 2 === 1 ? "0" + hex : hex;
   const values: string[] = [];
-
-  // Array length (number of u64 words)
-  values.push("0x" + fullChunks.toString(16));
-
-  // Full 8-byte words in little-endian
-  for (let i = 0; i < fullChunks * 16; i += 16) {
-    const chunk = hex.slice(i, i + 16);
-    values.push("0x" + toLittleEndianU64(chunk));
-  }
-
-  // Tail processing: last_input_word and last_input_num_bytes
-  if (remainingNibbles > 0) {
-    const remainingHex = hex.slice(fullChunks * 16);
-    const paddedRemainingHex = remainingHex.padEnd(16, "0");
-    const littleEndianRemaining = toLittleEndianU64(paddedRemainingHex);
-    values.push("0x" + littleEndianRemaining);
-
-    const validBytes = Math.floor(remainingNibbles / 2);
-    values.push("0x" + validBytes.toString(16));
-  } else {
-    values.push("0x0");
-    values.push("0x0");
+  // The byte length, in hex, prepended as first element
+  values.push("0x" + (normalizedHex.length / 2).toString(16));
+  for (let i = 0; i < normalizedHex.length; i += 2) {
+    values.push("0x" + normalizedHex.slice(i, i + 2));
   }
 
   return values;

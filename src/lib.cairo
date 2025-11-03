@@ -25,7 +25,7 @@ pub mod executable {
 
 
     #[external(v0)]
-    pub fn main(ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: ByteCodeLeWords) {
+    pub fn main(ref self: ContractState, hdp: HDP, codeHash: u256, byteCode: Span<u8>) {
         //? byteCode has to be cloned because cairo_keccak modifies the array
 
         let time_and_space = TimeAndSpace { chain_id: 11155111, block_number: 9455096 };
@@ -35,12 +35,14 @@ pub mod executable {
         // HPECT1 testing contract address on Sepolia:
         let target = 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap();
 
-        verify_bytecode(byteCode.clone(), codeHash);
+        if verify_bytecode(byteCode, codeHash) == 0 {
+            panic!("Bytecode verification failed");
+        }
 
         let mut context = Context {
             hdp: hdp,
             codeHash: codeHash,
-            byteCode: byteCode.get_original().bytes,
+            byteCode: byteCode,
             time_and_space: time_and_space,
             sender: sender,
             target: target,

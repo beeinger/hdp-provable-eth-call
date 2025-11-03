@@ -1,13 +1,9 @@
-use core::keccak::cairo_keccak;
-use crate::utils::bytecode::ByteCodeLeWords;
+use crate::utils::traits::bytes::U8SpanExTrait;
 
-pub fn verify_bytecode(byteCode: ByteCodeLeWords, codeHash: u256) -> u8 {
+pub fn verify_bytecode(byteCode: Span<u8>, codeHash: u256) -> u8 {
     println!("Received code hash: 0x{:x}", codeHash);
-    let mut words64bit = byteCode.words64bit;
 
-    let computedCodeHash = cairo_keccak(
-        ref words64bit, byteCode.lastInputWord, byteCode.lastInputNumBytes,
-    );
+    let computedCodeHash = byteCode.compute_keccak256_hash();
     println!("Computed code hash: 0x{:x}", computedCodeHash);
 
     if computedCodeHash == codeHash {
