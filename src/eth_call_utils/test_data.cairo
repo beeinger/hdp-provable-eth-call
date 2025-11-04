@@ -1,3 +1,4 @@
+#[derive(Drop)]
 pub struct TestData {
     pub calldata: Span<u8>,
     pub correct_result: Span<u8>,
