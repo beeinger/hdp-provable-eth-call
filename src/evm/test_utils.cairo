@@ -258,6 +258,7 @@ pub fn preset_vm() -> VM {
         pc: 0,
         valid_jumpdests: AccountTrait::get_jumpdests(message.code),
         return_data,
+        return_data_buf: return_data.into(),
         env: environment,
         message,
         gas_left: message.gas_limit,

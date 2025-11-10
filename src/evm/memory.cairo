@@ -9,6 +9,27 @@ use crate::utils::helpers;
 use crate::utils::math::Bitshift;
 use crate::utils::traits::array::ArrayExtTrait;
 
+/// Materializes a Span<u8> into an Array<u8> by extracting actual u8 values.
+/// This is necessary to avoid relocatable memory issues when spans point to
+/// relocatable memory that may be deallocated.
+///
+/// # Arguments
+/// * `span` - The span to materialize
+///
+/// # Returns
+/// * An Array<u8> containing the materialized bytes
+pub fn materialize_span_to_array(span: Span<u8>) -> Array<u8> {
+    let span_len = span.len();
+    let mut array: Array<u8> = Default::default();
+    let mut i = 0;
+    while i < span_len {
+        let byte_value: u8 = *span[i];
+        array.append(byte_value);
+        i += 1;
+    }
+    array
+}
+
 #[derive(Destruct, Default)]
 pub struct Memory {
     items: Felt252Dict<u128>,
@@ -22,6 +43,7 @@ pub trait MemoryTrait {
     fn store_byte(ref self: Memory, value: u8, offset: usize);
     fn store_n(ref self: Memory, elements: Span<u8>, offset: usize);
     fn store_padded_segment(ref self: Memory, offset: usize, length: usize, source: Span<u8>);
+    fn store_span_safe(ref self: Memory, span: Span<u8>, offset: usize);
     fn ensure_length(ref self: Memory, length: usize);
     fn load(ref self: Memory, offset: usize) -> u256;
     fn load_n(ref self: Memory, elements_len: usize, ref elements: Array<u8>, offset: usize);
@@ -151,6 +173,29 @@ impl MemoryImpl of MemoryTrait {
         self.store_last_word(final_chunk, offset_in_chunk_f, mask_f, final_bytes);
     }
 
+    /// Safely stores a span of bytes to memory by storing each byte individually.
+    /// This ensures we read actual u8 values directly from the span, avoiding relocatable issues.
+    ///
+    /// # Arguments
+    ///
+    /// * `self` - A mutable reference to the `Memory` instance to store the bytes in.
+    /// * `span` - A span of bytes to store in memory.
+    /// * `offset` - The offset within memory to store the bytes at.
+    #[inline(always)]
+    fn store_span_safe(ref self: Memory, span: Span<u8>, offset: usize) {
+        let mut current_offset = offset;
+        let mut i = 0;
+        let span_len = span.len();
+        while i < span_len {
+            // Access the byte value directly - this ensures we get actual u8 values
+            // even if the span points to relocatable memory
+            let byte_value: u8 = *span[i];
+            self.store_byte(byte_value, current_offset);
+            current_offset += 1;
+            i += 1;
+        }
+    }
+
     /// Stores a span of N bytes into memory at a specified offset with padded with 0s to match the
     /// size parameter.
     ///
@@ -166,20 +211,19 @@ impl MemoryImpl of MemoryTrait {
             return;
         }
 
-        // For performance reasons, we don't add the zeros directly to the source, which would
-        // generate an implicit copy, which might be expensive if the source is big.
-        // Instead, we'll copy the source into memory, then create a new span containing the zeros.
-        // TODO: optimize this with a specific function
-        let mut slice_size = min(source.len(), length);
-
-        let data_to_copy: Span<u8> = source.slice(0, slice_size);
-        self.store_n(data_to_copy, offset);
+        // Store bytes individually using store_span_safe to avoid relocatable issues
+        let slice_size = min(source.len(), length);
+        let data_to_copy = source.slice(0, slice_size);
+        self.store_span_safe(data_to_copy, offset);
         // For out of bound bytes, 0s will be copied.
         if (length > source.len()) {
-            let mut out_of_bounds_bytes: Array<u8> = ArrayTrait::new();
-            out_of_bounds_bytes.append_n(0, length - source.len());
-
-            self.store_n(out_of_bounds_bytes.span(), offset + slice_size);
+            let mut padding_size = length - source.len();
+            let mut current_offset = offset + slice_size;
+            while padding_size > 0 {
+                self.store_byte(0, current_offset);
+                current_offset += 1;
+                padding_size -= 1;
+            }
         }
     }
 
@@ -239,7 +283,8 @@ impl MemoryImpl of MemoryTrait {
     fn copy(ref self: Memory, size: usize, source_offset: usize, dest_offset: usize) {
         let mut data: Array<u8> = Default::default();
         self.load_n(size, ref data, source_offset);
-        self.store_n(data.span(), dest_offset);
+        // Store bytes individually using store_span_safe to avoid relocatable issues
+        self.store_span_safe(data.span(), dest_offset);
     }
 }
 

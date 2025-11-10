@@ -19,6 +19,7 @@ pub impl StopAndArithmeticOperations of StopAndArithmeticOperationsTrait {
         // see CALLs opcodes. When it runs the STOP opcode, it stops the current
         // execution context with *no* return data (unlike RETURN and REVERT).
         // hence it just clear the return_data and stop.
+        self.return_data_buf = Default::default();
         self.return_data = [].span();
         self.stop();
     }

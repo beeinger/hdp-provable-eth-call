@@ -32,71 +32,62 @@ pub mod executable {
             hdp: hdp, time_and_space: time_and_space, sender: sender, target: target,
         };
 
-        execute_call(ref self, ref context, test_data_perform_complex_calculation());
-        // TODO: try this delegate call:
-    // execute_call(ref self, ref context, test_data_perform_delegate_call_with_return());
-    // TODO ^^^^^
-    //
+
     // ============ Basic Data Retrieval Functions ============
-    // execute_call(ref self, ref context, test_data_get_storage_number());
-    // execute_call(ref self, ref context, test_data_get_hardcoded_number());
-    // execute_call(ref self, ref context, test_data_get_hardcoded_string());
-    // execute_call(ref self, ref context, test_data_get_constant_number());
-    // execute_call(ref self, ref context, test_data_get_constant_string());
+    execute_call(ref self, ref context, test_data_get_storage_number());
+    execute_call(ref self, ref context, test_data_get_hardcoded_number());
+    execute_call(ref self, ref context, test_data_get_hardcoded_string());
+    execute_call(ref self, ref context, test_data_get_constant_number());
+    execute_call(ref self, ref context, test_data_get_constant_string());
     // ============ Arithmetic Operations ============
-    // execute_call(ref self, ref context, test_data_get_storage_string());
-    // execute_call(ref self, ref context, test_data_get_storage_mapping());
-    // execute_call(ref self, ref context, test_data_perform_arithmetic_operations());
-    // execute_call(ref self, ref context, test_data_perform_modulo_operation());
-    // execute_call(ref self, ref context, test_data_perform_exponentiation());
-    // execute_call(ref self, ref context, test_data_perform_complex_calculation());
-    // execute_call(ref self, ref context, test_data_calculate_with_constant());
-    // execute_call(ref self, ref context, test_data_calculate_with_constant_string());
-    // execute_call(ref self, ref context, test_data_calculate_with_storage_number());
-    // execute_call(ref self, ref context, test_data_calculate_with_storage_string());
-    // execute_call(ref self, ref context, test_data_calculate_with_storage_mapping());
+    execute_call(ref self, ref context, test_data_get_storage_string());
+    execute_call(ref self, ref context, test_data_get_storage_mapping());
+    execute_call(ref self, ref context, test_data_perform_arithmetic_operations());
+    execute_call(ref self, ref context, test_data_perform_modulo_operation());
+    execute_call(ref self, ref context, test_data_perform_exponentiation());
+    execute_call(ref self, ref context, test_data_perform_complex_calculation());
+    execute_call(ref self, ref context, test_data_calculate_with_constant());
+    execute_call(ref self, ref context, test_data_calculate_with_constant_string());
+    execute_call(ref self, ref context, test_data_calculate_with_storage_number());
+    execute_call(ref self, ref context, test_data_calculate_with_storage_string());
+    execute_call(ref self, ref context, test_data_calculate_with_storage_mapping());
     // ============ Bitwise Operations ============
-    // execute_call(ref self, ref context, test_data_perform_bitwise_operations());
-    // execute_call(ref self, ref context, test_data_perform_shift_operations());
+    execute_call(ref self, ref context, test_data_perform_bitwise_operations());
+    execute_call(ref self, ref context, test_data_perform_shift_operations());
     // ============ Hash Operations ============
-    // execute_call(ref self, ref context, test_data_perform_keccak256_hash());
-    // execute_call(ref self, ref context, test_data_perform_keccak256_with_storage());
-    // execute_call(ref self, ref context, test_data_perform_keccak256_with_multiple_inputs());
+    execute_call(ref self, ref context, test_data_perform_keccak256_hash());
+    execute_call(ref self, ref context, test_data_perform_keccak256_with_storage());
+    execute_call(ref self, ref context, test_data_perform_keccak256_with_multiple_inputs());
     // ============ Storage Operations ============
-    // execute_call(ref self, ref context, test_data_perform_storage_operations());
-    // execute_call(ref self, ref context, test_data_perform_storage_mapping_operations());
-    // TODO: @herodotus [tests]
-    //execute_call(ref self, ref context, test_data_perform_multiple_storage_operations());
+    execute_call(ref self, ref context, test_data_perform_storage_operations());
+    execute_call(ref self, ref context, test_data_perform_storage_mapping_operations());
+    execute_call(ref self, ref context, test_data_perform_multiple_storage_operations());
     // ============ Call Operations ============
-    // execute_call(ref self, ref context, test_data_perform_static_call());
-    // TODO: @herodotus [tests]
-    // execute_call(ref self, ref context, test_data_perform_delegate_call_with_return());
-    // execute_call(ref self, ref context, test_data_perform_delegate_call());
+    execute_call(ref self, ref context, test_data_perform_static_call());
+    execute_call(ref self, ref context, test_data_perform_delegate_call_with_return());
+    execute_call(ref self, ref context, test_data_perform_delegate_call());
     // ============ Create Operations ============
     // TODO: @herodotus [tests]
     //execute_call(ref self, ref context, test_data_perform_create_operation());
     // TODO: @herodotus [tests]
     //execute_call(ref self, ref context, test_data_perform_create2_operation());
     // ============ Log Operations ============
-    // execute_call(ref self, ref context, test_data_perform_log_operation());
+    execute_call(ref self, ref context, test_data_perform_log_operation());
     // ============ Control Flow Operations ============
     // TODO: @herodotus [tests ]- there is no revert as a return value suppport in lib
-    // execute_call(ref self, ref context, test_data_perform_revert_operation());
-    // execute_call(ref self, ref context, test_data_perform_assert_operation());
+    execute_call(ref self, ref context, test_data_perform_revert_operation());
+    execute_call(ref self, ref context, test_data_perform_assert_operation());
     //============ Block Operations ============
-    // execute_call(ref self, ref context, test_data_perform_block_operations());
+    execute_call(ref self, ref context, test_data_perform_block_operations());
     //============ Gas Operations ============
-    // execute_call(ref self, ref context, test_data_perform_gas_operations());
+    execute_call(ref self, ref context, test_data_perform_gas_operations());
     //============ Address Operations ============
-    // execute_call(ref self, ref context, test_data_perform_address_operations());
+    execute_call(ref self, ref context, test_data_perform_address_operations());
     //============ Complex OpcodeOperations ============
-    // TODO: @herodotus [tests]
-    // execute_call(ref self, ref context, test_data_perform_complex_opcode_combination());
+    execute_call(ref self, ref context, test_data_perform_complex_opcode_combination());
     // ============ HPECT2 Integration Functions ============
-    // TODO: @herodotus [tests]
-    // execute_call(ref self, ref context, test_data_calculate_with_hpect2_number());
-    // TODO: @herodotus [tests]
-    // execute_call(ref self, ref context, test_data_get_caller_address_via_hpect2());
+     execute_call(ref self, ref context, test_data_calculate_with_hpect2_number());
+     execute_call(ref self, ref context, test_data_get_caller_address_via_hpect2());
     // ============ Precompile Interface Functions ============
     // TODO: @herodotus [tests] every test in precompiles
     // execute_call(ref self, ref context, test_data_perform_ecrecover());

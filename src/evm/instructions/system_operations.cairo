@@ -84,6 +84,7 @@ pub impl SystemOperations of SystemOperationsTrait {
             .get_account(self.message().target, self.hdp, @self.time_and_space)
             .balance();
         if sender_balance < value {
+            self.return_data_buf = Default::default();
             self.return_data = [].span();
             self.gas_left += message_call_gas.stipend;
             return self.stack.push(0);
@@ -156,6 +157,7 @@ pub impl SystemOperations of SystemOperationsTrait {
             .get_account(self.message().target, self.hdp, @self.time_and_space)
             .balance();
         if sender_balance < value {
+            self.return_data_buf = Default::default();
             self.return_data = [].span();
             self.gas_left += message_call_gas.stipend;
             return self.stack.push(0);
