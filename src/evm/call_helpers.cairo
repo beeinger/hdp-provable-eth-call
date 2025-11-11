@@ -58,6 +58,7 @@ pub impl CallHelpersImpl of CallHelpers {
         ret_offset: usize,
         ret_size: usize,
     ) -> Result<(), EVMError> {
+        self.return_data_buf = Default::default();
         self.return_data = [].span();
         if self.message().depth >= constants::STACK_MAX_DEPTH {
             self.gas_left += gas;
@@ -96,30 +97,32 @@ pub impl CallHelpersImpl of CallHelpers {
 
         match result.status {
             ExecutionResultStatus::Success => {
-                self.return_data = result.return_data;
+                // return_data already set in merge_child, no need to set again
                 self.stack.push(1)?;
             },
             ExecutionResultStatus::Revert => {
-                self.return_data = result.return_data;
+                // return_data already set in merge_child, no need to set again
                 self.stack.push(0)?;
             },
             ExecutionResultStatus::Exception => {
                 // If the call has halted exceptionnaly,
                 // the return_data is emptied, and nothing is stored in memory
-                self.return_data = [].span();
+                self.return_data_buf = Default::default();
+        self.return_data = [].span();
                 self.stack.push(0)?;
                 return Result::Ok(());
             },
         }
 
         // Get the min between len(return_data) and call_ctx.ret_size.
-        let actual_returndata_len = min(result.return_data.len(), ret_size);
+        let actual_returndata_len = min(self.return_data_buf.len(), ret_size);
 
-        let actual_return_data = result.return_data.slice(0, actual_returndata_len);
+        // Store bytes individually using store_span_safe to avoid relocatable issues
+        let return_data_span = self.return_data_buf.span().slice(0, actual_returndata_len);
+        self.memory.store_span_safe(return_data_span, ret_offset);
         // TODO: Check if need to pad the memory with zeroes if result.return_data.len() <
         // call_ctx.ret_size and memory is not empty at offset call_args.ret_offset +
         // result.return_data.len()
-        self.memory.store_n(actual_return_data, ret_offset);
 
         Result::Ok(())
     }

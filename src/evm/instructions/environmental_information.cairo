@@ -251,8 +251,9 @@ pub impl EnvironmentInformationImpl of EnvironmentInformationTrait {
         self.memory.ensure_length(memory_expansion.new_size);
         self.charge_gas(gas::VERYLOW + copy_gas_cost + memory_expansion.expansion_cost)?;
 
-        let data_to_copy: Span<u8> = return_data.slice(offset, size);
-        self.memory.store_n(data_to_copy, dest_offset);
+        // Store bytes individually using store_span_safe to avoid relocatable issues
+        let data_slice = return_data.slice(offset, size);
+        self.memory.store_span_safe(data_slice, dest_offset);
 
         Result::Ok(())
     }

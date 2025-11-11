@@ -2,6 +2,7 @@ use hdp_cairo::HDP;
 use hdp_cairo::evm::account::{AccountKey, AccountTrait as EvmAccountTrait};
 use hdp_cairo::evm::header::{HeaderKey, HeaderTrait};
 use hdp_cairo::evm::storage::{StorageKey, StorageTrait};
+use hdp_cairo::unconstrained::state::UnconstrainedMemorizerTrait;
 use starknet::EthAddress;
 use crate::evm::model::AddressTrait;
 use crate::evm::model::account::{Account, AccountTrait};
@@ -88,14 +89,20 @@ pub fn fetch_nonce(hdp: Option<@HDP>, time_and_space: @TimeAndSpace, address: @E
         .unwrap_or_else(|| panic!("Failed to convert nonce to u64"))
 }
 
-//! TODO: @herodotus [account] Last one completely unimplemented!
 pub fn fetch_bytecode(
     hdp: Option<@HDP>, time_and_space: @TimeAndSpace, address: @EthAddress,
 ) -> Span<u8> {
-    let _hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_bytecode"));
+    let hdp = hdp.unwrap_or_else(|| panic!("HDP is not set: fetch_bytecode"));
 
-    // TODO: @herodotus [account] HDP get account bytecode.
-    [].span()
+    println!("Fetching bytecode for address: {:?}", address);
+
+    let account_key = AccountKey {
+        chain_id: *time_and_space.chain_id,
+        block_number: *time_and_space.block_number,
+        address: (*address).into(),
+    };
+
+    hdp.evm_account_get_bytecode(@account_key).bytes
 }
 
 pub fn fetch_code_hash(
