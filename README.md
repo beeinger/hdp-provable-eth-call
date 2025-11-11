@@ -1,5 +1,11 @@
 # HDP EVM ByteCode
 
+> ℹ️ This repo has served it's purpose, provable ETH call is now a part of [HDP Cairo](https://github.com/HerodotusDev/hdp-cairo) 🎉🚀
+>
+> What is left here is an example of usage of the provable ETH call, with testing contracts, serving as a testing/experimentation suite for the provable ETH call.
+>
+> Last state before move to the HDP Cairo repo is available on the [`before-move-to-hdp`](https://github.com/beeinger/hdp-provable-eth-call/tree/before-move-to-hdp) branch.
+
 ## Prerequisites
 
 ### [HDP CLI](https://github.com/HerodotusDev/hdp-cairo)
@@ -8,21 +14,6 @@ To install run:
 
 ```
 curl -fsSL https://raw.githubusercontent.com/HerodotusDev/hdp-cairo/main/install-cli.sh | bash
-```
-
-### [Bun](https://bun.com/)
-
-To install run:
-
-```
-curl -fsSL https://bun.sh/install | bash
-```
-
-## Before first run
-
-```
-hdp-cli link
-cd input && bun i && cd ..
 ```
 
 ## Development
@@ -35,7 +26,7 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 
 ### Waiting on HDP features
 
-- [ ] `account_get_bytecode`
+- [x] `account_get_bytecode`
 - [x] `fusaka fork` compatibility
 - [ ] `account_is_deployed`
 - [ ] `header_get_prevrandao`
@@ -49,19 +40,19 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 - [x] execute simple bytecode (DONE! run ERC20 decimals())
 - [x] execute more complex bytecode accessing storage slots
   - [x] ~~needs `fusaka compatibility PR` on HDP for the sound run to pass~~
-- [ ] execute even more complex bytecode - a proxy running the code of another contract
-  - [ ] needs `account_get_bytecode PR` on HDP to be possible
+- [x] execute even more complex bytecode - a proxy running the code of another contract
+  - [x] needs `account_get_bytecode PR` on HDP to be possible
 
 #### TODOs:
 
 > ℹ️ Search the code for `TODO: @herodotus [<subject>]`
 
-- [ ] Cleanup lib.cairo
+- [x] Cleanup lib.cairo
 
-  - [ ] split into functions
-  - [ ] generic function for running calldata and expecting a result
-  - [ ] file with testing setup - a list of all calldata + expected result pairs to not have them hardcoded in lib.cairo
-  - [ ] run all methods on the HPECT1 contract - comment out the ones using calls to other contracts or precompiles we dont support
+  - [x] split into functions
+  - [x] generic function for running calldata and expecting a result
+  - [x] file with testing setup - a list of all calldata + expected result pairs to not have them hardcoded in lib.cairo
+  - [x] run all methods on the HPECT1 contract - comment out the ones using calls to other contracts or precompiles we dont support
 
 - [x] implement everything in [hdp-backend.cairo](./src/evm/hdp_backend.cairo)
 
@@ -78,7 +69,7 @@ To run see commands in [`run.sh`](./run.sh) or run it directly:
 
   - [x] Especially Environment stuff like gas price, chain id, prevrandao, block number, gas limit, timestamp, coinbase, base fee - they all have to come from somewhere
     - [ ] Only field missing is `prevrundao`
-    - [ ] Better setup is places in `new_main` but needs HDP to support bytecode first.
+    - [x] Better setup is places in `new_main` but needs HDP to support bytecode first.
 
 - [x] Create a new folder `solidity` for testing contracts to use
   - [x] basic function, just simple bytecode

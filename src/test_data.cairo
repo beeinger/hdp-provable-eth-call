@@ -1,7 +1,10 @@
+use starknet::EthAddress;
+
 #[derive(Drop)]
 pub struct TestData {
     pub calldata: Span<u8>,
     pub correct_result: Span<u8>,
+    pub target: EthAddress,
 }
 
 pub fn test_data_get_storage_number() -> TestData {
@@ -14,6 +17,8 @@ pub fn test_data_get_storage_number() -> TestData {
             0, 0x08, 0x59,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -27,6 +32,8 @@ pub fn test_data_get_hardcoded_number() -> TestData {
             0, 0, 0x01,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -42,6 +49,8 @@ pub fn test_data_get_hardcoded_string() -> TestData {
             0x6c, 0x64, 0x21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -55,6 +64,8 @@ pub fn test_data_get_constant_number() -> TestData {
             0, 0x08, 0x59,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -70,6 +81,8 @@ pub fn test_data_get_constant_string() -> TestData {
             0x6c, 0x64, 0x21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -85,6 +98,8 @@ pub fn test_data_get_storage_string() -> TestData {
             0x6c, 0x64, 0x21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -102,6 +117,8 @@ pub fn test_data_get_storage_mapping() -> TestData {
             0, 0, 0x15,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -123,6 +140,8 @@ pub fn test_data_perform_arithmetic_operations() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x59,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -141,6 +160,8 @@ pub fn test_data_perform_modulo_operation() -> TestData {
             0, 0x08, 0x59,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -159,6 +180,8 @@ pub fn test_data_perform_exponentiation() -> TestData {
             0, 0x08, 0x59,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -178,6 +201,8 @@ pub fn test_data_perform_complex_calculation() -> TestData {
             0, 0x08, 0x59,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -191,6 +216,8 @@ pub fn test_data_calculate_with_constant() -> TestData {
             0, 0x08, 0x5a,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -206,6 +233,8 @@ pub fn test_data_calculate_with_constant_string() -> TestData {
             0x6c, 0x64, 0x21, 0x21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -219,6 +248,8 @@ pub fn test_data_calculate_with_storage_number() -> TestData {
             0, 0x08, 0x5a,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -234,6 +265,8 @@ pub fn test_data_calculate_with_storage_string() -> TestData {
             0x6c, 0x64, 0x21, 0x21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -251,6 +284,8 @@ pub fn test_data_calculate_with_storage_mapping() -> TestData {
             0, 0, 0x16,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -271,6 +306,8 @@ pub fn test_data_perform_bitwise_operations() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x58,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -290,6 +327,8 @@ pub fn test_data_perform_shift_operations() -> TestData {
             0, 0, 0, 0, 0, 0, 0x04, 0x2c,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -310,6 +349,8 @@ pub fn test_data_perform_keccak256_hash() -> TestData {
             0x41, 0xdc, 0xff, 0xd2,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -324,6 +365,8 @@ pub fn test_data_perform_keccak256_with_storage() -> TestData {
             0xf3, 0x0b, 0xa9, 0xd9,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -348,6 +391,8 @@ pub fn test_data_perform_keccak256_with_multiple_inputs() -> TestData {
             0x50, 0x02, 0xf3, 0xc6,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -362,6 +407,8 @@ pub fn test_data_perform_storage_operations() -> TestData {
             0, 0, 0, 0, 0, 0, 0x08, 0x5a,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -380,6 +427,8 @@ pub fn test_data_perform_storage_mapping_operations() -> TestData {
             0, 0, 0, 0, 0, 0, 0x16,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -403,6 +452,8 @@ pub fn test_data_perform_multiple_storage_operations() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x5a,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -416,6 +467,8 @@ pub fn test_data_perform_static_call() -> TestData {
             0, 0, 0x01,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -429,6 +482,8 @@ pub fn test_data_perform_delegate_call_with_return() -> TestData {
             0, 0xaf, 0x72,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -442,6 +497,8 @@ pub fn test_data_perform_delegate_call() -> TestData {
             0x70, 0x86, 0x0b, 0x6c, 0xf5, 0x5e, 0xf2, 0xc7, 0x22, 0xcc, 0x7e, 0x1a,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 pub fn test_data_perform_create_operation() -> TestData {
@@ -454,6 +511,8 @@ pub fn test_data_perform_create_operation() -> TestData {
             0x8d, 0x50, 0x1b, 0x3d, 0x5a, 0x3d, 0x72, 0xf2, 0x8b, 0x1b, 0xe9, 0x58,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -471,6 +530,8 @@ pub fn test_data_perform_create2_operation() -> TestData {
             0xdf, 0xe5, 0xb8, 0x0e, 0x97, 0x18, 0x0b, 0xd3, 0x3f, 0x6e, 0x2c, 0x6d,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 pub fn test_data_perform_revert_operation() -> TestData {
@@ -490,6 +551,8 @@ pub fn test_data_perform_revert_operation() -> TestData {
             0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 // TODO @herodotus doesnt work
@@ -511,6 +574,8 @@ pub fn test_data_perform_log_operation() -> TestData {
             0xf3, 0x0b, 0xa9, 0xd9,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -528,6 +593,8 @@ pub fn test_data_perform_assert_operation() -> TestData {
             0, 0, 0x01,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -545,6 +612,8 @@ pub fn test_data_perform_block_operations() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -560,6 +629,8 @@ pub fn test_data_perform_gas_operations() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0x03, 0x93, 0x87, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -577,6 +648,8 @@ pub fn test_data_perform_address_operations() -> TestData {
             0x88, 0x19, 0xf8,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -603,6 +676,8 @@ pub fn test_data_perform_complex_opcode_combination() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -616,6 +691,8 @@ pub fn test_data_calculate_with_hpect2_number() -> TestData {
             0, 0xaf, 0x72,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -629,6 +706,8 @@ pub fn test_data_get_caller_address_via_hpect2() -> TestData {
             0xef, 0xd8, 0xc3, 0x22, 0x38, 0xc5, 0xd3, 0x9b, 0x15, 0xbb, 0xff, 0xd1,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -651,6 +730,8 @@ pub fn test_data_perform_ecrecover() -> TestData {
             0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -672,6 +753,8 @@ pub fn test_data_perform_sha256() -> TestData {
             0x1b, 0xce, 0x7e, 0xb5,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -692,6 +775,8 @@ pub fn test_data_perform_ripemd160() -> TestData {
             0xb5, 0x68, 0xdc, 0x13, 0x69, 0x78, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -713,6 +798,8 @@ pub fn test_data_perform_identity() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -741,6 +828,8 @@ pub fn test_data_perform_modexp() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -769,6 +858,8 @@ pub fn test_data_perform_bn256_add() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -795,6 +886,8 @@ pub fn test_data_perform_bn256_mul() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -819,6 +912,8 @@ pub fn test_data_perform_bn256_pairing() -> TestData {
             0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 
@@ -849,6 +944,8 @@ pub fn test_data_perform_blake2f() -> TestData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]
             .span(),
+        // HPECT1 testing contract address on Sepolia:
+        target: 0xe5d5bc62Cf36FB14eFd8c32238c5d39B15bbFFd1.try_into().unwrap(),
     }
 }
 // getHardcodedNumber() - 0x9dfcf569
