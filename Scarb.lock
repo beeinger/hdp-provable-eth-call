@@ -74,6 +74,5 @@ dependencies = [
 name = "hdp_provable_eth_call"
 version = "0.1.0"
 dependencies = [
- "garaga",
  "hdp_cairo",
 ]
