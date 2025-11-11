@@ -87,6 +87,7 @@ pub impl CreateHelpersImpl of CreateHelpers {
         self.gas_left -= create_message_gas;
 
         ensure(!self.message().read_only, EVMError::WriteInStaticContext)?;
+        self.return_data_buf = Default::default();
         self.return_data = [].span();
 
         // The sender in the subcontext is the message's target
@@ -141,16 +142,20 @@ pub impl CreateHelpersImpl of CreateHelpers {
 
         match result.status {
             ExecutionResultStatus::Success => {
-                self.return_data = [].span();
+                self.return_data_buf = Default::default();
+        self.return_data = [].span();
                 self.stack.push(target_address.into())?;
             },
             ExecutionResultStatus::Revert => {
-                self.return_data = result.return_data;
+                // result.return_data is already an Array<u8>, so we can use it directly
+                self.return_data_buf = result.return_data.clone();
+                self.return_data = self.return_data_buf.span();
                 self.stack.push(0)?;
             },
             ExecutionResultStatus::Exception => {
                 // returndata is emptied in case of exception
-                self.return_data = [].span();
+                self.return_data_buf = Default::default();
+        self.return_data = [].span();
                 self.stack.push(0)?;
             },
         }
@@ -169,7 +174,7 @@ pub impl CreateHelpersImpl of CreateHelpers {
     fn finalize_creation(
         ref self: ExecutionResult, mut account: Account,
     ) -> Result<Account, EVMError> {
-        let code = self.return_data;
+        let code = self.return_data.span();
         let contract_code_gas = code.len().into() * gas::CODEDEPOSIT;
 
         if code.len() != 0 {

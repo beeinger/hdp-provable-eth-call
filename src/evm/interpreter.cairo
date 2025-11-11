@@ -18,6 +18,7 @@ use crate::evm::model::{
     Message, TransactionResult, TransactionResultTrait, Transfer,
 };
 use crate::evm::precompiles::eth_precompile_addresses;
+use crate::evm::memory::materialize_span_to_array;
 use crate::evm::state::StateTrait;
 use crate::hdp_backend::{TimeAndSpace, fetch_base_fee};
 use crate::utils::address::compute_contract_address;
@@ -210,7 +211,17 @@ pub impl EVMImpl of EVMTrait {
 
             let mut result = Self::process_create_message(message, ref env, hdp, time_and_space);
             if result.is_success() {
-                result.return_data = message.target.to_bytes().span();
+                // Materialize the target address bytes
+                let target_bytes_span = message.target.to_bytes().span();
+                let target_bytes_len = target_bytes_span.len();
+                let mut target_bytes_array: Array<u8> = Default::default();
+                let mut i = 0;
+                while i < target_bytes_len {
+                    let byte_value: u8 = *target_bytes_span[i];
+                    target_bytes_array.append(byte_value);
+                    i += 1;
+                }
+                result.return_data = target_bytes_array;
             }
             result
         } else {
@@ -221,7 +232,7 @@ pub impl EVMImpl of EVMTrait {
         ExecutionSummary {
             status: result.status,
             state: env.state,
-            return_data: result.return_data,
+            return_data: result.return_data.span(),
             gas_left: result.gas_left,
             gas_refund: result.gas_refund,
         }
@@ -258,7 +269,7 @@ pub impl EVMImpl of EVMTrait {
                 Result::Ok(account_created) => { env.state.set_account(account_created) },
                 Result::Err(err) => {
                     env.state = state_snapshot;
-                    result.return_data = [].span();
+                    result.return_data = Default::default();
                     return ExecutionResultTrait::exceptional_failure(
                         err.to_bytes(), result.accessed_addresses, result.accessed_storage_keys,
                     );
@@ -336,9 +347,11 @@ pub impl EVMImpl of EVMTrait {
                     } else {
                         ExecutionResultStatus::Success
                     };
+                    // Materialize return data to ensure actual u8 values
+                    let return_data_array = materialize_span_to_array(vm.return_data());
                     return ExecutionResult {
                         status,
-                        return_data: vm.return_data(),
+                        return_data: return_data_array,
                         gas_left: vm.gas_left(),
                         accessed_addresses: vm.accessed_addresses(),
                         accessed_storage_keys: vm.accessed_storage_keys(),
@@ -368,9 +381,11 @@ pub impl EVMImpl of EVMTrait {
         if !vm.is_running() {
             // REVERT opcode case
             if vm.is_error() {
+                // Materialize return data to ensure actual u8 values
+                let return_data_array = materialize_span_to_array(vm.return_data());
                 return ExecutionResult {
                     status: ExecutionResultStatus::Revert,
-                    return_data: vm.return_data(),
+                    return_data: return_data_array,
                     gas_left: vm.gas_left(),
                     accessed_addresses: vm.accessed_addresses(),
                     accessed_storage_keys: vm.accessed_storage_keys(),
@@ -378,9 +393,11 @@ pub impl EVMImpl of EVMTrait {
                 };
             }
             // Success case
+            // Materialize return data to ensure actual u8 values
+            let return_data_array = materialize_span_to_array(vm.return_data());
             return ExecutionResult {
                 status: ExecutionResultStatus::Success,
-                return_data: vm.return_data(),
+                return_data: return_data_array,
                 gas_left: vm.gas_left(),
                 accessed_addresses: vm.accessed_addresses(),
                 accessed_storage_keys: vm.accessed_storage_keys(),
@@ -402,9 +419,11 @@ pub impl EVMImpl of EVMTrait {
                 }
                 // REVERT opcode case
                 if vm.is_error() {
+                    // Materialize return data to ensure actual u8 values
+                    let return_data_array = materialize_span_to_array(vm.return_data());
                     return ExecutionResult {
                         status: ExecutionResultStatus::Revert,
-                        return_data: vm.return_data(),
+                        return_data: return_data_array,
                         gas_left: vm.gas_left(),
                         accessed_addresses: vm.accessed_addresses(),
                         accessed_storage_keys: vm.accessed_storage_keys(),
@@ -412,9 +431,11 @@ pub impl EVMImpl of EVMTrait {
                     };
                 }
                 // Success case
+                // Materialize return data to ensure actual u8 values
+                let return_data_array = materialize_span_to_array(vm.return_data());
                 return ExecutionResult {
                     status: ExecutionResultStatus::Success,
-                    return_data: vm.return_data(),
+                    return_data: return_data_array,
                     gas_left: vm.gas_left(),
                     accessed_addresses: vm.accessed_addresses(),
                     accessed_storage_keys: vm.accessed_storage_keys(),

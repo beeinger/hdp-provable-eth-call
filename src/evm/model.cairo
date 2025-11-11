@@ -11,6 +11,7 @@ use crate::evm::precompiles::{
     LAST_ETHEREUM_PRECOMPILE_ADDRESS,
 };
 use crate::evm::state::State;
+use crate::evm::memory::materialize_span_to_array;
 use crate::hdp_backend::TimeAndSpace;
 pub use crate::hdp_backend::is_deployed;
 use crate::utils::fmt::TSpanSetDebug;
@@ -77,7 +78,7 @@ pub struct ExecutionResult {
     /// The status of the execution result.
     pub status: ExecutionResultStatus,
     /// The return data of the execution.
-    pub return_data: Span<u8>,
+    pub return_data: Array<u8>,
     /// The remaining gas after execution.
     pub gas_left: u64,
     /// Set of accessed addresses during execution.
@@ -117,9 +118,11 @@ pub impl ExecutionResultImpl of ExecutionResultTrait {
         accessed_addresses: SpanSet<EthAddress>,
         accessed_storage_keys: SpanSet<(EthAddress, u256)>,
     ) -> ExecutionResult {
+        // Materialize the error span into an Array to own the data
+        let error_array = materialize_span_to_array(error);
         ExecutionResult {
             status: ExecutionResultStatus::Exception,
-            return_data: error,
+            return_data: error_array,
             gas_left: 0,
             accessed_addresses,
             accessed_storage_keys,

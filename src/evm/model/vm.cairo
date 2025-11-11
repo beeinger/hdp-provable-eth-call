@@ -7,6 +7,7 @@ use crate::evm::errors::EVMError;
 use crate::evm::memory::Memory;
 use crate::evm::model::{AccountTrait, Environment, ExecutionResult, ExecutionResultStatus, Message};
 use crate::evm::stack::Stack;
+use crate::evm::memory::materialize_span_to_array;
 use crate::utils::set::{Set, SetTrait, SpanSet, SpanSetTrait};
 use crate::utils::traits::SpanDefault;
 use super::TimeAndSpace;
@@ -20,6 +21,7 @@ pub struct VM {
     pub pc: usize,
     pub valid_jumpdests: Felt252Dict<bool>,
     pub return_data: Span<u8>,
+    pub return_data_buf: Array<u8>,
     pub env: Environment,
     pub message: Message,
     pub gas_left: u64,
@@ -45,6 +47,7 @@ pub impl VMImpl of VMTrait {
             pc: 0,
             valid_jumpdests: AccountTrait::get_jumpdests(message.code),
             return_data: [].span(),
+            return_data_buf: Default::default(),
             env,
             message,
             gas_left: message.gas_limit,
@@ -90,7 +93,9 @@ pub impl VMImpl of VMTrait {
 
     #[inline(always)]
     fn set_return_data(ref self: VM, return_data: Span<u8>) {
-        self.return_data = return_data;
+        // Materialize the span into an Array to own the data
+        self.return_data_buf = materialize_span_to_array(return_data);
+        self.return_data = self.return_data_buf.span();
     }
 
     #[inline(always)]
@@ -175,11 +180,21 @@ pub impl VMImpl of VMTrait {
                 self.accessed_storage_keys.extend(*child.accessed_storage_keys);
                 self.gas_refund += *child.gas_refund;
                 self.gas_left += *child.gas_left;
-                self.return_data = *child.return_data;
+                // Child return_data is already an Array<u8>, so we can use it directly
+                self.return_data_buf = child.return_data.clone();
+                self.return_data = self.return_data_buf.span();
             },
-            ExecutionResultStatus::Revert => { self.gas_left += *child.gas_left; },
+            ExecutionResultStatus::Revert => {
+                self.gas_left += *child.gas_left;
+                // Child return_data is already an Array<u8>, so we can use it directly
+                self.return_data_buf = child.return_data.clone();
+                self.return_data = self.return_data_buf.span();
+            },
             // If the call has halted exceptionnaly, the gas is not returned.
-            ExecutionResultStatus::Exception => {},
+            ExecutionResultStatus::Exception => {
+                self.return_data_buf = Default::default();
+                self.return_data = [].span();
+            },
         };
     }
 }
